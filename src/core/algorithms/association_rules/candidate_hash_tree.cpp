@@ -42,7 +42,7 @@ void CandidateHashTree::AddLevel(HashTreeNode& leaf_node) {
     leaf_node.candidates.clear();
 }
 
-void CandidateHashTree::AddCandidate(NodeIterator candidate, Node* parent) {
+void CandidateHashTree::AddCandidate(NodeIterator candidate, ItemsetNode* parent) {
     AppendRow(LeafRow(candidate, parent), root_);
     ++total_row_count_;
 }

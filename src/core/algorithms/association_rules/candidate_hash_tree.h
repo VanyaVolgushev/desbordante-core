@@ -1,30 +1,30 @@
 #pragma once
 
 #include "model/transaction/transactional_data.h"
-#include "node.h"
+#include "itemset_node.h"
 
 namespace algos {
 
 class CandidateHashTree {
 private:
-    using NodeIterator = std::list<Node>::iterator;
+    using NodeIterator = std::list<ItemsetNode>::iterator;
 
     unsigned const branching_degree_;
     unsigned const min_threshold_;
     unsigned total_row_count_ = 0;
-    std::unordered_map<Node*, std::list<Node>>& candidates_;
+    std::unordered_map<ItemsetNode*, std::list<ItemsetNode>>& candidates_;
 
     model::TransactionalData const* const transactional_data_ = nullptr;
 
     struct LeafRow {
         NodeIterator candidate_node;
-        Node* const parent;
+        ItemsetNode* const parent;
         unsigned transaction_count = 0;
 
         LeafRow(LeafRow&& other) = default;
         LeafRow& operator=(LeafRow&& other) = delete;
 
-        LeafRow(NodeIterator node, Node* parent) : candidate_node(node), parent(parent) {}
+        LeafRow(NodeIterator node, ItemsetNode* parent) : candidate_node(node), parent(parent) {}
 
         LeafRow(LeafRow const& other) = delete;
     };
@@ -58,7 +58,7 @@ private:
 
 public:
     CandidateHashTree(model::TransactionalData const* transactional_data,
-                      std::unordered_map<Node*, std::list<Node>>& candidates,
+                      std::unordered_map<ItemsetNode*, std::list<ItemsetNode>>& candidates,
                       unsigned branching_degree, unsigned min_threshold)
         : branching_degree_(branching_degree),
           min_threshold_(min_threshold),
@@ -68,7 +68,7 @@ public:
         AddCandidates();
     }
 
-    void AddCandidate(NodeIterator candidate, Node* parent);
+    void AddCandidate(NodeIterator candidate, ItemsetNode* parent);
 
     unsigned Size() const noexcept {
         return total_row_count_;

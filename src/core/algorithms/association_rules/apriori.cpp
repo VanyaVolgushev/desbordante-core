@@ -7,9 +7,9 @@
 
 namespace algos {
 
-Apriori::Apriori() : ARAlgorithm({}) {}
+Apriori::Apriori() : ItemsetsToAR({}) {}
 
-void Apriori::GenerateCandidates(std::vector<Node>& children) {
+void Apriori::GenerateCandidates(std::vector<ItemsetNode>& children) {
     auto const last_child_iter = std::prev(children.end());
     for (auto child_iter = children.begin(); child_iter != last_child_iter; ++child_iter) {
         for (auto child_right_sibling_iter = std::next(child_iter);
@@ -26,14 +26,14 @@ void Apriori::GenerateCandidates(std::vector<Node>& children) {
 
 void Apriori::CreateFirstLevelCandidates() {
     for (unsigned item_id = 0; item_id < transactional_data_->GetUniverseSize(); ++item_id) {
-        candidates_[&root_].emplace_back(item_id);
+        candidates_[&itemset_root_].emplace_back(item_id);
     }
     ++level_num_;
 }
 
 bool Apriori::GenerateNextCandidateLevel() {
-    std::stack<Node*> path;
-    path.push(&root_);
+    std::stack<ItemsetNode*> path;
+    path.push(&itemset_root_);
 
     assert(level_num_ >= 2);
     while (!path.empty()) {
@@ -50,23 +50,23 @@ bool Apriori::GenerateNextCandidateLevel() {
     return candidate_hash_tree_->Size() > 0;
 }
 
-void Apriori::UpdatePath(std::stack<Node*>& path, std::vector<Node>& vertices) {
+void Apriori::UpdatePath(std::stack<ItemsetNode*>& path, std::vector<ItemsetNode>& vertices) {
     for (auto iter = vertices.rbegin(); iter != vertices.rend(); ++iter) {
-        Node* node_ptr = &(*iter);
+        ItemsetNode* node_ptr = &(*iter);
         path.push(node_ptr);
     }
 }
 
-void Apriori::UpdatePath(std::stack<Node const*>& path, std::vector<Node> const& vertices) {
+void Apriori::UpdatePath(std::stack<ItemsetNode const*>& path, std::vector<ItemsetNode> const& vertices) {
     for (auto iter = vertices.rbegin(); iter != vertices.rend(); ++iter) {
-        Node const* node_ptr = &(*iter);
+        ItemsetNode const* node_ptr = &(*iter);
         path.push(node_ptr);
     }
 }
 
-void Apriori::UpdatePath(std::queue<Node const*>& path, std::vector<Node> const& vertices) {
+void Apriori::UpdatePath(std::queue<ItemsetNode const*>& path, std::vector<ItemsetNode> const& vertices) {
     for (auto const& vertex : vertices) {
-        Node const* node_ptr = &vertex;
+        ItemsetNode const* node_ptr = &vertex;
         path.push(node_ptr);
     }
 }
@@ -76,9 +76,9 @@ bool Apriori::CanBePruned(std::vector<unsigned> const& itemset) {
     assert(itemset.size() >= 2);
     for (unsigned index_to_skip = 0; index_to_skip < itemset.size() - 1; ++index_to_skip) {
         // TODO(alexandrsmirn) можно просто идти по листам вместо стека, пока не попадется пустой
-        // std::list<Node> const& nodesToVisit = root.children;
-        std::stack<Node*> nodes_to_visit;
-        UpdatePath(nodes_to_visit, root_.children);
+        // std::list<ItemsetNode> const& nodesToVisit = root.children;
+        std::stack<ItemsetNode*> nodes_to_visit;
+        UpdatePath(nodes_to_visit, itemset_root_.children);
 
         unsigned item_index = 0;
         bool found_subset = false;
@@ -102,7 +102,7 @@ bool Apriori::CanBePruned(std::vector<unsigned> const& itemset) {
                     found_subset = true;
                     break;
                 }
-                nodes_to_visit = std::stack<Node*>();
+                nodes_to_visit = std::stack<ItemsetNode*>();
                 UpdatePath(nodes_to_visit, node->children);
             }
         }
@@ -119,7 +119,7 @@ bool Apriori::CanBePruned(std::vector<unsigned> const& itemset) {
 void Apriori::ResetStateAr() {
     level_num_ = 1;
     candidates_.clear();
-    root_ = Node();
+    itemset_root_ = ItemsetNode();
 }
 
 unsigned long long Apriori::FindFrequent() {
@@ -153,8 +153,8 @@ unsigned long long Apriori::FindFrequent() {
 unsigned long long Apriori::GenerateAllRules() {
     auto start_time = std::chrono::system_clock::now();
 
-    std::queue<Node const*> path;
-    UpdatePath(path, root_.children);
+    std::queue<ItemsetNode const*> path;
+    UpdatePath(path, itemset_root_.children);
     unsigned long long frequent_count = 0;
 
     while (!path.empty()) {
@@ -179,8 +179,8 @@ unsigned long long Apriori::GenerateAllRules() {
 std::list<std::set<std::string>> Apriori::GetFrequentList() const {
     std::list<std::set<std::string>> frequent_itemsets;
 
-    std::queue<Node const*> path;
-    UpdatePath(path, root_.children);
+    std::queue<ItemsetNode const*> path;
+    UpdatePath(path, itemset_root_.children);
 
     while (!path.empty()) {
         auto const curr_node = path.front();
@@ -199,9 +199,9 @@ std::list<std::set<std::string>> Apriori::GetFrequentList() const {
 }
 
 double Apriori::GetSupport(std::vector<unsigned int> const& frequent_itemset) const {
-    auto const* path = &(root_.children);
+    auto const* path = &(itemset_root_.children);
     unsigned item_index = 0;
-    auto node_comparator = [&item_index](Node const& node, std::vector<unsigned> const& items) {
+    auto node_comparator = [&item_index](ItemsetNode const& node, std::vector<unsigned> const& items) {
         return node.items[item_index] < items[item_index];
     };
 

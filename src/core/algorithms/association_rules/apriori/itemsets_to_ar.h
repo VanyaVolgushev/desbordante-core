@@ -1,4 +1,6 @@
-#include "ar_algorithm.h"
+#pragma once
+
+#include "algorithms/association_rules/ar_algorithm.h"
 #include "rule_node.h"
 
 namespace algos {

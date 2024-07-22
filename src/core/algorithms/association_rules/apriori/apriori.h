@@ -5,9 +5,9 @@
 #include <stack>
 #include <vector>
 
-#include "algorithms/association_rules/candidate_hash_tree.h"
-#include "algorithms/association_rules/itemset_node.h"
-#include "itemsets_to_ar.h"
+#include "algorithms/association_rules/apriori/candidate_hash_tree.h"
+#include "algorithms/association_rules/apriori/itemset_node.h"
+#include "algorithms/association_rules/apriori/itemsets_to_ar.h"
 #include "model/transaction/itemset.h"
 
 namespace algos {

@@ -118,7 +118,7 @@ def scenario_tabular():
 def scenario_singular():
     algo = desbordante.ar.algorithms.Default()
     algo.load_data(table=(TABLE_SINGULAR, ',', True), input_format='singular')
-    algo.execute()
+    algo.execute(minconf=1)
     table = pandas.read_csv(TABLE_SINGULAR, header=None, index_col=0)
 
     print("\nFor the second example, let's take a dataset "
@@ -127,6 +127,7 @@ def scenario_singular():
           'two-column format, where the first column is the order of the items, '
           'and the second column is the item that belongs to that order.\n')
     print_table(table)
+    print_ars(algo.get_ars())
     print('\nThis format is just a different table representation. Desbordante '
           'is perfectly capable of rules discovery in such tables, and the '
           'discovered objects are represented by the same '

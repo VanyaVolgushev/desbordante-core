@@ -71,7 +71,7 @@ protected:
     }
 
     template <typename... Args>
-    static std::unique_ptr<algos::ARAlgorithm> CreateAlgorithmInstance(Args&&... args) {
+    static std::unique_ptr<algos::Apriori> CreateAlgorithmInstance(Args&&... args) {
         return algos::CreateAndLoadAlgorithm<algos::Apriori>(
                 GetParamMap(std::forward<Args>(args)...));
     }

@@ -1,4 +1,6 @@
-#include "ar.h"
+#pragma once
+
+#include "algorithms/association_rules/ar.h"
 
 struct RuleNode {
     model::ArIDs rule;

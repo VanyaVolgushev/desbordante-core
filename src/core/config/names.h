@@ -22,6 +22,9 @@ constexpr auto kInputFormat = "input_format";
 constexpr auto kTIdColumnIndex = "tid_column_index";
 constexpr auto kItemColumnIndex = "item_column_index";
 constexpr auto kFirstColumnTId = "has_tid";
+constexpr auto kPopulationSize = "population_size";
+constexpr auto kMaxFitnessEvaluations = "max_fitness_evaluations";
+
 constexpr auto kMetric = "metric";
 constexpr auto kLhsIndices = "lhs_indices";
 constexpr auto kRhsIndices = "rhs_indices";

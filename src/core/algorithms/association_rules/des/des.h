@@ -19,7 +19,8 @@ public:
     unsigned long long GenerateAllRules() override;
     void ResetState() final;
     unsigned long long ExecuteInternal() override;
-
+private:
+    void RegisterOptions();
 };
 
 }  // namespace algos

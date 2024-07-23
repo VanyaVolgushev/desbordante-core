@@ -1,6 +1,6 @@
 /**
  * Numerical Association Rule Mining using DE, PSO...
- */
+
 
 #include <stdio.h>
 #include <math.h>
@@ -23,12 +23,12 @@
 
 using namespace std;
 
-/**
+
  * Main C++ function.
  *
  * @param command line from which the program is launched.
  * @return return code (0, if program stops normally).
- */
+ *
 int main(int argc, char* argv[])
 {
 	string s_name = "arm.set";
@@ -136,12 +136,12 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-/**
+
  * Display syntax of the command.
  *
  * @param no parameters.
  * @return no return value.
- */
+
 void help(FILE * stream)
 {
 	fprintf(stream, "uARMSolver version 0.3.0 (July 2024)\n\n");
@@ -149,12 +149,12 @@ void help(FILE * stream)
 	fprintf(stream, "  uARMSolver [-v|-?] [-s'arm.set'|-s 'arm.set']\n");
 }
 
-/**
+/
  * Call the appropriate ARM problem solver.
  *
  * @param incorporate parameter setup, problem definition and produced archive of association rules.
  * @return no return value.
- */
+
 void solve(Setup setup, Problem problem, Archive &rules)
 {
 	clock_t start_t, end_t; 	// time measuring in miliseconds
@@ -186,13 +186,14 @@ void solve(Setup setup, Problem problem, Archive &rules)
 	printf("Total time= %lf\n", (double) (end_t - start_t) / CLOCKS_PER_SEC);
 }
 
-/**
+
  * Prepare data needed for visualization - not implemented yet.
  *
  * @param incorporate parameter setup, and archive of association rules.
  * @return no return value.
- */
+
 void visualize(Setup set, Archive rules)
 {
 
 }
+*/

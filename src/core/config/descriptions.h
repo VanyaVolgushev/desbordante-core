@@ -42,6 +42,11 @@ constexpr auto kDInputFormat = "format of the input dataset for AR mining\n[sing
 constexpr auto kDTIdColumnIndex = "index of the column where a TID is stored";
 constexpr auto kDItemColumnIndex = "index of the column where an item name is stored";
 constexpr auto kDFirstColumnTId = "indicates that the first column contains the transaction IDs";
+constexpr auto kDPopulationSize = "the number of individuals in the population at any given time";
+constexpr auto kDMaxFitnessEvaluations =
+        "the algorithm will be stopped after calculating the fitness "
+        "function this many times";
+
 auto const kDMetric = details::kDMetricString.c_str();
 constexpr auto kDLhsIndices = "LHS column indices";
 constexpr auto kDRhsIndices = "RHS column indices";

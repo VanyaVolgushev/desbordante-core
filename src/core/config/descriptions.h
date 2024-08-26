@@ -4,6 +4,7 @@
 #include <string>
 
 #include "algorithms/cfd/enums.h"
+#include "algorithms/association_rules/enums.h"
 #include "algorithms/fd/pfdtane/enums.h"
 #include "algorithms/metric/enums.h"
 #include "util/enum_to_available_values.h"
@@ -19,6 +20,8 @@ std::string const kDCfdSubstrategyString = "CFD lattice traversal strategy to us
                                            util::EnumToAvailableValues<algos::cfd::Substrategy>();
 std::string const kDErrorMeasureString =
         "PFD error measure to use\n" + util::EnumToAvailableValues<algos::ErrorMeasure>();
+std::string const kDInputFormatString =
+        "input format to use\n" + util::EnumToAvailableValues<algos::InputFormat>();
 }  // namespace details
 
 constexpr auto kDTable = "table processed by the algorithm";
@@ -38,7 +41,7 @@ constexpr auto kDMaximumArity = "max considered arity";
 constexpr auto kDSeed = "RNG seed";
 constexpr auto kDMinimumSupport = "minimum support value (between 0 and 1)";
 constexpr auto kDMinimumConfidence = "minimum confidence value (between 0 and 1)";
-constexpr auto kDInputFormat = "format of the input dataset for AR mining\n[singular|tabular]";
+auto const kDInputFormat = details::kDInputFormatString.c_str();
 constexpr auto kDTIdColumnIndex = "index of the column where a TID is stored";
 constexpr auto kDItemColumnIndex = "index of the column where an item name is stored";
 constexpr auto kDFirstColumnTId = "indicates that the first column contains the transaction IDs";

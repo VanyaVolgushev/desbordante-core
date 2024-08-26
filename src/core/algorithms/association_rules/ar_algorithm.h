@@ -9,7 +9,7 @@
 
 #include "algorithms/algorithm.h"
 #include "ar.h"
-#include "ar_algorithm_enums.h"
+#include "enums.h"
 #include "config/tabular_data/input_table_type.h"
 #include "model/transaction/transactional_data.h"
 

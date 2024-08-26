@@ -117,8 +117,8 @@ def scenario_tabular():
 
 def scenario_singular():
     algo = desbordante.ar.algorithms.Default()
-    algo.load_data(table=(TABLE_SINGULAR, ',', True), input_format='singular')
-    algo.execute(minconf=1)
+    algo.load_data(table=(TABLE_SINGULAR, ',', True), input_format='tabular')
+    algo.execute()
     table = pandas.read_csv(TABLE_SINGULAR, header=None, index_col=0)
 
     print("\nFor the second example, let's take a dataset "
@@ -127,7 +127,6 @@ def scenario_singular():
           'two-column format, where the first column is the order of the items, '
           'and the second column is the item that belongs to that order.\n')
     print_table(table)
-    print_ars(algo.get_ars())
     print('\nThis format is just a different table representation. Desbordante '
           'is perfectly capable of rules discovery in such tables, and the '
           'discovered objects are represented by the same '
@@ -138,8 +137,10 @@ def scenario_singular():
     print(f'In order to do this, you can use {COLOR_CODES["bold_blue"]}'
           f'get_itemnames{COLOR_CODES["default"]} method:\n')
     print_itemnames(algo.get_itemnames())
-    print('\nNow you have all of the items used in this dataset.\n')
-
+    print('\nNow you have all of the items used in this dataset, '
+          'allowing you to filter them and then print individual entries.\n')
+    print_itemnames(list(filter(lambda item: not item.isdigit(),  algo.get_itemnames())))
+   
 
 if __name__ == '__main__':
     scenario_tabular()

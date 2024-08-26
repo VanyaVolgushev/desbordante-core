@@ -7,7 +7,7 @@
 #include <pybind11/stl.h>
 
 #include "algorithms/metric/enums.h"
-#include "association_rules/ar_algorithm_enums.h"
+#include "association_rules/enums.h"
 #include "config/equal_nulls/type.h"
 #include "config/error/type.h"
 #include "config/indices/type.h"

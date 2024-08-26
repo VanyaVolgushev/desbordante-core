@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "algorithms/algo_factory.h"
-#include "algorithms/association_rules/apriori.h"
+#include "algorithms/association_rules/apriori/apriori.h"
 #include "all_csv_configs.h"
 #include "config/names.h"
 
@@ -49,7 +49,7 @@ static std::set<std::pair<std::set<std::string>, std::set<std::string>>> ToSet(
     return set;
 }
 
-class ARAlgorithmTest : public ::testing::Test {
+class AprioriTest : public ::testing::Test {
 protected:
     static algos::StdParamsMap GetParamMap(CSVConfig const& csv_config, double minsup,
                                            double minconf, unsigned int tidColumnIndex,
@@ -77,7 +77,7 @@ protected:
     }
 };
 
-TEST_F(ARAlgorithmTest, BookDataset) {
+TEST_F(AprioriTest, BookDataset) {
     auto algorithm = CreateAlgorithmInstance(kRulesBook, 0.3, 0.5, 0, 1);
     algorithm->Execute();
     auto const actual_frequent = algorithm->GetFrequentList();
@@ -108,7 +108,7 @@ TEST_F(ARAlgorithmTest, BookDataset) {
     CheckAssociationRulesListsEquality(actual_rules, expected_rules);
 }
 
-TEST_F(ARAlgorithmTest, PresentationExtendedDataset) {
+TEST_F(AprioriTest, PresentationExtendedDataset) {
     auto algorithm = CreateAlgorithmInstance(kRulesPresentationExtended, 0.6, 0, 0, 1);
     algorithm->Execute();
     auto const actual = algorithm->GetFrequentList();
@@ -127,7 +127,7 @@ TEST_F(ARAlgorithmTest, PresentationExtendedDataset) {
     CheckFrequentListsEquality(actual, expected);
 }
 
-TEST_F(ARAlgorithmTest, PresentationDataset) {
+TEST_F(AprioriTest, PresentationDataset) {
     auto algorithm = CreateAlgorithmInstance(kRulesPresentation, 0.6, 0, 0, 1);
     algorithm->Execute();
 
@@ -147,7 +147,7 @@ TEST_F(ARAlgorithmTest, PresentationDataset) {
     CheckAssociationRulesListsEquality(actual_rules, expected_rules);
 }
 
-TEST_F(ARAlgorithmTest, SynteticDatasetWithPruning) {
+TEST_F(AprioriTest, SynteticDatasetWithPruning) {
     auto algorithm = CreateAlgorithmInstance(kRulesSynthetic2, 0.13, 1.00001, 0, 1);
     algorithm->Execute();
 
@@ -180,7 +180,7 @@ TEST_F(ARAlgorithmTest, SynteticDatasetWithPruning) {
     CheckAssociationRulesListsEquality(actual_rules, expected_rules);
 }
 
-TEST_F(ARAlgorithmTest, KaggleDatasetWithTIDandHeader) {
+TEST_F(AprioriTest, KaggleDatasetWithTIDandHeader) {
     auto algorithm = CreateAlgorithmInstance(kRulesKaggleRows, 0.1, 0.5, true);
     algorithm->Execute();
 
@@ -307,7 +307,7 @@ TEST_F(ARAlgorithmTest, KaggleDatasetWithTIDandHeader) {
     CheckAssociationRulesListsEquality(actual_rules, expected_rules);
 }
 
-TEST_F(ARAlgorithmTest, RepeatedExecutionConsistentResult) {
+TEST_F(AprioriTest, RepeatedExecutionConsistentResult) {
     auto algorithm = CreateAlgorithmInstance(kRulesKaggleRows, 0.1, 0.5, true);
     algorithm->Execute();
     auto first_result = ToSet(algorithm->GetArStringsList());

@@ -1,4 +1,6 @@
+cmake-build-all/
 cmake-build-debug/
+cmake-build-default/
 build/
 Build/
 BUILD/

@@ -18,11 +18,6 @@
 #include "Problem.h"
 #include "Squash.h"
 
-
-
-void help(FILE *stream = stdout);
-void solve(Setup setup, Problem problem, Archive &rules);
-void visualize(Setup setup, Archive rules);
 //INSERTED
 
 namespace algos {
@@ -36,6 +31,62 @@ void DES::ResetState()
 {
     //everything = 0 and delete
 }
+
+    void help(FILE * stream)
+    {
+        fprintf(stream, "uARMSolver version 0.3.0 (July 2024)\n\n");
+        fprintf(stream, "Syntax\n");
+        fprintf(stream, "  uARMSolver [-v|-?] [-s'arm.set'|-s 'arm.set']\n");
+    }
+
+/**
+ * Call the appropriate ARM problem solver.
+ *
+ * @param incorporate parameter setup, problem definition and produced archive of association rules.
+ * @return no return value.
+ */
+    void solve(Setup setup, Problem problem, Archive &rules)
+    {
+        clock_t start_t, end_t; 	// time measuring in miliseconds
+
+        start_t = clock();
+        cout << "Solver strated..." << endl;
+        switch(setup.get_solver()) {
+            case SOLVER_DE: {
+                int n_dim = problem.get_dimension();
+                int n_np = setup.get_Np();
+                int n_run = setup.get_RUNs();
+
+                cout << "n_dim= " << n_dim << ", n_np= " << n_np << endl;
+                DESolver solver(n_dim, n_np, problem);
+                cout << "Setup..." << endl;
+                solver.Setup(setup.alg_param.de.strategy, setup.alg_param.de.scale, setup.alg_param.de.xover);
+                for(int i=0;i<n_run;i++) {
+                    int n_fes = setup.get_FEs();
+                    cout << "n_fes= " << n_fes << endl;
+                    solver.Evolve(i, n_fes, rules);
+                }
+            }
+                break;
+            case SOLVER_PSO:
+                break;
+        }
+
+        end_t = clock();
+        printf("Total time= %lf\n", (double) (end_t - start_t) / CLOCKS_PER_SEC);
+    }
+
+/**
+ * Prepare data needed for visualization - not implemented yet.
+ *
+ * @param incorporate parameter setup, and archive of association rules.
+ * @return no return value.
+ */
+    void visualize(Setup set, Archive rules)
+    {
+
+    }
+
 unsigned long long DES::ExecuteInternal()
 {
     RegisterOptions();
@@ -52,8 +103,8 @@ unsigned long long DES::ExecuteInternal()
     {
         if((strncmp(argv[i], "-v", 2) == 0) || (strncmp(argv[i], "-?", 2) == 0))
         {
-            help();
-            return EXIT_SUCCESS;
+            //used to call help() here
+            return EXIT_FAILURE;
         }
         else if(strncmp(argv[i], "-s", 2) == 0)	// setup file name
         {
@@ -152,60 +203,7 @@ unsigned long long DES::ExecuteInternal()
 
     return time;
 }
-    void help(FILE * stream)
-    {
-        fprintf(stream, "uARMSolver version 0.3.0 (July 2024)\n\n");
-        fprintf(stream, "Syntax\n");
-        fprintf(stream, "  uARMSolver [-v|-?] [-s'arm.set'|-s 'arm.set']\n");
-    }
 
-/**
- * Call the appropriate ARM problem solver.
- *
- * @param incorporate parameter setup, problem definition and produced archive of association rules.
- * @return no return value.
- */
-    void solve(Setup setup, Problem problem, Archive &rules)
-    {
-        clock_t start_t, end_t; 	// time measuring in miliseconds
-
-        start_t = clock();
-        cout << "Solver strated..." << endl;
-        switch(setup.get_solver()) {
-            case SOLVER_DE: {
-                int n_dim = problem.get_dimension();
-                int n_np = setup.get_Np();
-                int n_run = setup.get_RUNs();
-
-                cout << "n_dim= " << n_dim << ", n_np= " << n_np << endl;
-                DESolver solver(n_dim, n_np, problem);
-                cout << "Setup..." << endl;
-                solver.Setup(setup.alg_param.de.strategy, setup.alg_param.de.scale, setup.alg_param.de.xover);
-                for(int i=0;i<n_run;i++) {
-                    int n_fes = setup.get_FEs();
-                    cout << "n_fes= " << n_fes << endl;
-                    solver.Evolve(i, n_fes, rules);
-                }
-            }
-                break;
-            case SOLVER_PSO:
-                break;
-        }
-
-        end_t = clock();
-        printf("Total time= %lf\n", (double) (end_t - start_t) / CLOCKS_PER_SEC);
-    }
-
-/**
- * Prepare data needed for visualization - not implemented yet.
- *
- * @param incorporate parameter setup, and archive of association rules.
- * @return no return value.
- */
-void visualize(Setup set, Archive rules)
-{
-
-}
 
 void DES::RegisterOptions()
 {

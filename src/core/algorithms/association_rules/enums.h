@@ -4,6 +4,6 @@
 
 namespace algos {
 
-BETTER_ENUM(InputFormat, char, singular = 0, tabular);
+BETTER_ENUM(InputFormat, char, singular = 0, tabular, hasitem);
 
 }  // namespace algos

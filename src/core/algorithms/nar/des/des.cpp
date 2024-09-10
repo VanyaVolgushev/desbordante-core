@@ -20,7 +20,6 @@
 #include "Setup.h"
 #include "Archive.h"
 #include "Problem.h"
-#include "Squash.h"
 
 //INSERTED
 
@@ -90,16 +89,6 @@ void solve(Setup setup, Problem problem, Archive &rules) {
     printf("Total time= %lf\n", (double) (end_t - start_t) / CLOCKS_PER_SEC);
 }
 
-/**
- * Prepare data needed for visualization - not implemented yet.
- *
- * @param incorporate parameter setup, and archive of association rules.
- * @return no return value.
- */
-void visualize(Setup set, Archive rules) {
-
-}
-
 unsigned long long DES::GenerateAllNARs() {
     //TODO
     return 0;
@@ -114,24 +103,6 @@ unsigned long long DES::ExecuteInternal() {
     auto time = (long long) 0;
 
     string s_name = "arm.set";
-
-    for (int i = 1; i < argc; i++) {
-        if ((strncmp(argv[i], "-v", 2) == 0) || (strncmp(argv[i], "-?", 2) == 0)) {
-            //used to call help() here
-            return EXIT_FAILURE;
-        } else if (strncmp(argv[i], "-s", 2) == 0)    // setup file name
-        {
-            s_name.assign(&argv[i][2]);
-            // allow -s FILE, not just -sFILE:
-            if (s_name.empty() && i < argc - 1) {
-                s_name.assign(argv[++i]);
-            }
-        } else {
-            fprintf(stderr, "Unexpected argument: %s\n\n", argv[i]);
-            help(stderr);
-            return EXIT_FAILURE;
-        }
-    }
 
     srand(1);
 
@@ -161,17 +132,6 @@ unsigned long long DES::ExecuteInternal() {
         printf("Reading transaction database= %d, f_name= %s...\n", i + 1, str.c_str());
         // read transaction database(s)
         prob[i].init_tdbase(setup, str);
-
-        // squashing database if needed
-        if (setup.get_squash() > 0) {
-            Squash sq;
-            sq.make_sq_dbase(setup, prob[i]);
-            sq.write(setup);
-            sq.stat(prob[i]);
-            prob[i].dbase.clear();
-            prob[i].dbase = sq.sq_dbase;
-            sq.sq_dbase.clear();
-        }
     }
 
     Archive rules[setup.get_period()];
@@ -206,12 +166,6 @@ unsigned long long DES::ExecuteInternal() {
             rules[i].write(str, prob[i]);
         }
     }
-    exit(-1);
-
-    // visualization
-    visualize(setup, rules[0]);
-
-    return 0;
 
     return time;
 }

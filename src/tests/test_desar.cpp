@@ -25,11 +25,11 @@ protected:
     }
 };
 
-TEST_F(DESARTest, BookDataset) {
-auto algorithm = CreateAlgorithmInstance(kRulesBook, 0.3, 0.5, 0, 1);
-algorithm->Execute();
-auto const actual_rules = algorithm->GetArStringsList();
-SUCCEED();
+TEST_F(DESARTest, LaunchTest) {
+    auto algorithm = CreateAlgorithmInstance(kRulesBook, 0.3, 0.5, 0, 1);
+    algorithm->Execute();
+    auto const actual_rules = algorithm->GetArStringsList();
+    SUCCEED();
 }
 
 }  // namespace tests

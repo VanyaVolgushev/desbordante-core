@@ -1,7 +1,8 @@
+#pragma once
+
 #include "config/names.h"
 #include "algorithms/nar/nar_algorithm.h"
 #include "enums.h"
-
 
 namespace algos {
 

@@ -24,7 +24,9 @@ constexpr auto kItemColumnIndex = "item_column_index";
 constexpr auto kFirstColumnTId = "has_tid";
 constexpr auto kPopulationSize = "population_size";
 constexpr auto kMaxFitnessEvaluations = "max_fitness_evaluations";
-
+constexpr auto kDifferentialScale = "differential_scale";
+constexpr auto kCrossoverProbability = "crossover_probability";
+constexpr auto kDifferentialStrategy = "differential_strategy";
 constexpr auto kMetric = "metric";
 constexpr auto kLhsIndices = "lhs_indices";
 constexpr auto kRhsIndices = "rhs_indices";

@@ -9,13 +9,13 @@
 
 namespace algos {
 
-class DES;
-typedef void (DES::*StrategyFunction)(int);
+class DESAR;
+typedef void (DESAR::*StrategyFunction)(int);
 
-class DES : public ARAlgorithm {
+class DESAR : public ARAlgorithm {
 
 public:
-    DES();
+    DESAR();
     unsigned long long GenerateAllRules() override;
     void ResetState() final;
     unsigned long long ExecuteInternal() override;

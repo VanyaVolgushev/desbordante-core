@@ -7,6 +7,7 @@
 #include "algorithms/association_rules/enums.h"
 #include "algorithms/fd/pfdtane/enums.h"
 #include "algorithms/metric/enums.h"
+#include "algorithms/nar/des/enums.h"
 #include "util/enum_to_available_values.h"
 
 namespace config::descriptions {
@@ -22,6 +23,8 @@ std::string const kDErrorMeasureString =
         "PFD error measure to use\n" + util::EnumToAvailableValues<algos::ErrorMeasure>();
 std::string const kDInputFormatString =
         "input format to use\n" + util::EnumToAvailableValues<algos::InputFormat>();
+std::string const kDDifferentialStrategyString = "mutation strategy to use\n" +
+                                                 util::EnumToAvailableValues<algos::DifferentialStrategy>();
 }  // namespace details
 
 constexpr auto kDTable = "table processed by the algorithm";
@@ -49,7 +52,9 @@ constexpr auto kDPopulationSize = "the number of individuals in the population a
 constexpr auto kDMaxFitnessEvaluations =
         "the algorithm will be stopped after calculating the fitness "
         "function this many times";
-
+constexpr auto kDDifferentialScale = "the magnitude of mutations";
+constexpr auto kDCrossoverProbability = "probability of a gene getting mutated in a new individual";
+auto const kDDifferentialStrategy = details::kDDifferentialStrategyString.c_str();
 auto const kDMetric = details::kDMetricString.c_str();
 constexpr auto kDLhsIndices = "LHS column indices";
 constexpr auto kDRhsIndices = "RHS column indices";

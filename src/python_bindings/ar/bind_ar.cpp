@@ -37,7 +37,7 @@ void BindAr(py::module_& main_module) {
     auto algos_module = ar_module.def_submodule("algorithms");
     auto default_algorithm =
             detail::RegisterAlgorithm<Apriori, ARAlgorithm>(algos_module, "Apriori");
-    detail::RegisterAlgorithm<DES, ARAlgorithm>(algos_module, "DES");
+    detail::RegisterAlgorithm<DESAR, ARAlgorithm>(algos_module, "DESAR");
     algos_module.attr("Default") = default_algorithm;
 
     // Perhaps in the future there will be a need for:

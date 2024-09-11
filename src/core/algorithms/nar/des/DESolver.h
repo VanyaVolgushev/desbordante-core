@@ -57,7 +57,7 @@ public:
 	void Setup(int strategy, double scale, double xover);
 	// Solve() returns true if EnergyFunction() returns true.
 	// Otherwise it runs maxGenerations generations and returns false.
-	void Evolve(int run, int maxFEs, Archive &rules);
+	void Evolve(int maxFEs, Archive &rules);
 //	virtual bool Solve(int maxGenerations);
 	// Call these functions after Solve() to get results.
 	double Energy(void) { return(bestEnergy); }

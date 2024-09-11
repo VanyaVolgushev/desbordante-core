@@ -6,8 +6,6 @@
 #include <memory.h>
 #include <math.h>
 
-#define sqr(a) 	((a)*(a))
-
 /**
  * Initialization of ARM solver using DE.
  *
@@ -133,7 +131,7 @@ cout << "Initialisation of population..." << endl;
  * @param the number of independent run, the maximum number of fitness function evaluations, and the archive of the mined association rules.
  * @return no return code.
  */
-void DESolver::Evolve(int run, int maxFEs, Archive &rules)
+void DESolver::Evolve(int maxFEs, Archive &rules)
 {
 	int maxGenerations;
 

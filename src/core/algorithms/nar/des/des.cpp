@@ -64,26 +64,17 @@ void solve(Setup setup, Problem problem, Archive &rules) {
 
     start_t = clock();
     cout << "Solver strated..." << endl;
-    switch (setup.get_solver()) {
-        case SOLVER_DE: {
-            int n_dim = problem.get_dimension();
-            int n_np = setup.get_Np();
-            int n_run = setup.get_RUNs();
 
-            cout << "n_dim= " << n_dim << ", n_np= " << n_np << endl;
-            DESolver solver(n_dim, n_np, problem);
-            cout << "Setup..." << endl;
-            solver.Setup(setup.alg_param.de.strategy, setup.alg_param.de.scale, setup.alg_param.de.xover);
-            for (int i = 0; i < n_run; i++) {
-                int n_fes = setup.get_FEs();
-                cout << "n_fes= " << n_fes << endl;
-                solver.Evolve(i, n_fes, rules);
-            }
-        }
-            break;
-        case SOLVER_PSO:
-            break;
-    }
+    int n_dim = problem.get_dimension();
+    int n_np = setup.get_Np();
+
+    cout << "n_dim= " << n_dim << ", n_np= " << n_np << endl;
+    DESolver solver(n_dim, n_np, problem);
+    cout << "Setup..." << endl;
+    solver.Setup(setup.alg_param.de.strategy, setup.alg_param.de.scale, setup.alg_param.de.xover);
+    int n_fes = setup.get_FEs();
+    cout << "n_fes= " << n_fes << endl;
+    solver.Evolve(n_fes, rules);
 
     end_t = clock();
     printf("Total time= %lf\n", (double) (end_t - start_t) / CLOCKS_PER_SEC);
@@ -97,9 +88,6 @@ unsigned long long DES::GenerateAllNARs() {
 unsigned long long DES::ExecuteInternal() {
 
     //MAIN FUNCTION OF DESOLVER
-    int argc = 0;
-    char *argv[] = {nullptr};
-
     auto time = (long long) 0;
 
     string s_name = "arm.set";
@@ -115,59 +103,20 @@ unsigned long long DES::ExecuteInternal() {
         printf("ARM setup: File %s not read.\n", s_name.c_str());
         exit(-1);
     }
-
     setup.print_param();
 
-    // problem definition - read transaction database(s)
-    Problem prob[setup.get_period()];
-
-    for (int i = 0; i < setup.get_period(); i++) {    // number of problems
-        string str = setup.get_tdbase_name();
-        if (setup.get_period() > 1) {
-            char f_name[256];
-            sprintf(f_name, ".%d", i + 1);
-            str.append(f_name);
-        }
-
-        printf("Reading transaction database= %d, f_name= %s...\n", i + 1, str.c_str());
-        // read transaction database(s)
-        prob[i].init_tdbase(setup, str);
-    }
-
-    Archive rules[setup.get_period()];
-
-    if (setup.get_solver() == SOLVER_NONE) {        // reading the existing ARM archive
-        for (int i = 0; i < setup.get_period(); i++) {    // number of periods
-            string str = setup.get_rule_name();
-            if (setup.get_period() > 1) {
-                char f_name[256];
-                sprintf(f_name, ".%d", i + 1);
-                str.append(f_name);
-            }
-
-            printf("Reading file= %d, f_name= %s...\n", i + 1, str.c_str());
-            // read transaction database(s)
-            rules[i].read(str, prob[i]);
-        }
-    } else {        // producing the new ARM archive
-        for (int i = 0; i < setup.get_period(); i++) {    // number of periods
-            // evaluate solution
-            solve(setup, prob[i], rules[i]);
-            // obtain output file name
-            string str = setup.get_out_name();
-            if (setup.get_period() > 1) {
-                char f_name[256];
-                sprintf(f_name, ".%d", i + 1);
-                str.append(f_name);
-            }
-            printf("Writing file= %d, f_name= %s...\n", i + 1, str.c_str());
-            // write archive of rules found
-            rules[i].asort();    // sort the archive
-            rules[i].write(str, prob[i]);
-        }
-    }
+    Problem prob;
+    string str = setup.get_tdbase_name();
+    printf("Reading transaction database, f_name= %s...\n", str.c_str());
+    prob.init_tdbase(setup, str);
+    Archive rules;
+    solve(setup, prob, rules);
+    string str2 = setup.get_out_name();
+    printf("Writing file, f_name= %s...\n", str2.c_str());
+    rules.asort();    // sort the archive
+    rules.write(str2, prob);
 
     return time;
 }
 
-}
+} // namespace algos

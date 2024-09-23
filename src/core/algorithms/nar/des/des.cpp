@@ -6,7 +6,7 @@
 
 //INSERTED
 /**
- * Numerical Association Rule Mining using DE, PSO...
+ * Numerical Association NAR Mining using DE, PSO...
  */
 
 #include <stdio.h>
@@ -87,6 +87,25 @@ unsigned long long DES::GenerateAllNARs() {
 
 unsigned long long DES::ExecuteInternal() {
 
+
+    for (uint columnIndex = 0; columnIndex < typed_relation_->GetNumColumns(); ++columnIndex) {
+        size_t num_rows = typed_relation_->GetColumnData(columnIndex).GetNumRows();
+        size_t row_index = (columnIndex + 14) % num_rows;
+        model::TypedColumnData const& column = typed_relation_->GetColumnData(columnIndex);
+        const byte* value;
+
+        if(!column.IsNullOrEmpty(row_index))
+        {
+            value = column.GetValue(row_index);
+        }
+        int integer_value = model::Type::GetValue<int>(value);
+        std::cout << "column " << columnIndex << " " << "\n";
+        std::cout << "type: " << column.GetType().ToString();
+        std::cout << "example of data at " << row_index << ": ";
+        std::cout <<  integer_value;
+        std::cout << "\n";
+    }
+
     //MAIN FUNCTION OF DESOLVER
     auto time = (long long) 0;
 
@@ -106,9 +125,9 @@ unsigned long long DES::ExecuteInternal() {
     setup.print_param();
 
     Problem prob;
-    string str = setup.get_tdbase_name();
-    printf("Reading transaction database, f_name= %s...\n", str.c_str());
-    prob.init_tdbase(setup, str);
+    string databasename = setup.get_tdbase_name();
+    printf("Reading transaction database, f_name= %s...\n", databasename.c_str());
+    prob.init_tdbase(setup, databasename);
     Archive rules;
     solve(setup, prob, rules);
     string str2 = setup.get_out_name();

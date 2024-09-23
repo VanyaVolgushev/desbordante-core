@@ -12,11 +12,10 @@ private:
     using TypedRelation = model::ColumnLayoutTypedRelationData;
 
     config::InputTable input_table_;
-    std::unique_ptr<TypedRelation> typed_relation_;
-
     void RegisterOptions();
 
 protected:
+    std::unique_ptr<TypedRelation> typed_relation_;
     double minsup_;
     double minconf_;
 

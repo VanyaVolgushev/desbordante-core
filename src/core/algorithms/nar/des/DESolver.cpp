@@ -12,7 +12,7 @@
  * @param dimension of the problem in a real solution space (i.e., the number of feature into transaction database), population size, and a definition of the problem.
  * @return no return code.
  */
-DESolver::DESolver(int dim,int popSize,	Problem problem) :
+DESolver::DESolver(int dim, int popSize, Problem problem) :
 					D(dim), nDim(0), nPop(popSize),
 					generations(0), strategy(stRand1Exp),
 					scale(0.7), probability(0.5),
@@ -124,7 +124,7 @@ cout << "Initialisation of population..." << endl;
 
 	return;
 }
-
+//TODO ^ REPLACE STRATEGY WITH ENUM
 /**
  * Optimization step of the association rule miner based on DE.
  *

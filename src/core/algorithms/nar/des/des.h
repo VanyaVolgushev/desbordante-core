@@ -14,7 +14,11 @@ private:
     double differential_scale_;
     double crossover_probability_;
     DifferentialStrategy differential_strategy_ = DifferentialStrategy::rand1Exp;
+    //std::list<model::NarIDs> nar_collection_;
 
+    //std::list<model::ArIDs> const& GetArIDsList() const noexcept {
+    //    return nar_collection_;
+    //};
     void RegisterOptions();
 
 protected:

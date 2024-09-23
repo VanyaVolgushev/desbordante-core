@@ -49,10 +49,10 @@ public:
 	void set_inclusion(double incl) { inclusion = incl; }
 
 private:
-	double fitness;			///< fitness of the association rule
-	double support;			///< support of the association rule
-	double confidence;		///< confidence of the association rule
-	double inclusion;		///< inclusion of the association rule
+	double fitness;
+	double support;
+	double confidence;
+	double inclusion;
 public:
 	set <string> ante;		///< antecedent part of the association rule
 	set <string> cons;		///< consequent part of the association rule

@@ -3,6 +3,7 @@
 #include "config/names_and_descriptions.h"
 #include "config/option_using.h"
 #include "config/tabular_data/input_table/option.h"
+#include "algorithms/nar/des/create_feature.h"
 
 //INSERTED
 /**
@@ -23,7 +24,7 @@
 
 //INSERTED
 
-namespace algos {
+namespace algos::des {
 
 DES::DES() : NARAlgorithm({}) {
     using namespace config::names;
@@ -85,9 +86,7 @@ unsigned long long DES::GenerateAllNARs() {
     return 0;
 }
 
-unsigned long long DES::ExecuteInternal() {
-
-
+void DES::Test() {
     for (uint columnIndex = 0; columnIndex < typed_relation_->GetNumColumns(); ++columnIndex) {
         size_t num_rows = typed_relation_->GetColumnData(columnIndex).GetNumRows();
         size_t row_index = (columnIndex + 14) % num_rows;
@@ -105,6 +104,22 @@ unsigned long long DES::ExecuteInternal() {
         std::cout <<  integer_value;
         std::cout << "\n";
     }
+
+    std::cout << "trying to create a CategoricalAttribute\n";
+    size_t string_column_num = 0;
+    size_t double_column_num = 1;
+    size_t integer_column_num = 2;
+    model::TypedColumnData const& string_column = typed_relation_->GetColumnData(string_column_num);
+    model::TypedColumnData const& double_column = typed_relation_->GetColumnData(double_column_num);
+    model::TypedColumnData const& int_column = typed_relation_->GetColumnData(integer_column_num);
+    std::unique_ptr<Feature> string_feat = CreateFeature(string_column);
+    std::unique_ptr<Feature> double_feat = CreateFeature(double_column);
+    std::unique_ptr<Feature> int_feat = CreateFeature(int_column);
+    std::cout << double_feat->GetTypeId();
+}
+
+unsigned long long DES::ExecuteInternal() {
+    Test();
 
     //MAIN FUNCTION OF DESOLVER
     auto time = (long long) 0;
@@ -137,5 +152,6 @@ unsigned long long DES::ExecuteInternal() {
 
     return time;
 }
+
 
 } // namespace algos

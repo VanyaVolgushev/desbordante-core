@@ -4,7 +4,7 @@
 #include "algorithms/nar/nar_algorithm.h"
 #include "enums.h"
 
-namespace algos {
+namespace algos::des {
 
 class DES : public NARAlgorithm {
 
@@ -20,6 +20,7 @@ private:
     //    return nar_collection_;
     //};
     void RegisterOptions();
+    void Test();
 
 protected:
     unsigned long long GenerateAllNARs() override;

@@ -24,7 +24,7 @@ std::string const kDErrorMeasureString =
 std::string const kDInputFormatString =
         "input format to use\n" + util::EnumToAvailableValues<algos::InputFormat>();
 std::string const kDDifferentialStrategyString = "mutation strategy to use\n" +
-                                                 util::EnumToAvailableValues<algos::DifferentialStrategy>();
+                                                 util::EnumToAvailableValues<algos::des::DifferentialStrategy>();
 }  // namespace details
 
 constexpr auto kDTable = "table processed by the algorithm";

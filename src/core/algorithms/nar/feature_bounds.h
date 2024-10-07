@@ -2,19 +2,20 @@
 
 #include "model/types/type.h"
 #include "model/table/column_layout_typed_relation_data.h"
-#include "algorithms/nar/des/enums.h"
+#include "algorithms/nar/enums.h"
 
-namespace algos::des {
+namespace algos {
 
-class Feature {
+class FeatureBounds {
 public:
     virtual FeatureTypeId GetTypeId() = 0;
-    virtual ~Feature() = 0;
+protected:
+    FeatureBounds(){}; 
 };
 
-class CategoricalFeature : public Feature {
+class CategoricalFeatureBounds : public FeatureBounds {
 public:
-    explicit CategoricalFeature(model::TypedColumnData const& column);
+    explicit CategoricalFeatureBounds(model::TypedColumnData const& column);
     FeatureTypeId GetTypeId() override {
         return FeatureTypeId::kCategorical;
     }
@@ -22,9 +23,9 @@ private:
     std::vector<std::string> domain_;
 };
 
-class RealFeature : public Feature {
+class RealFeatureBounds : public FeatureBounds {
 public:
-    explicit RealFeature(model::TypedColumnData const& column);
+    explicit RealFeatureBounds(model::TypedColumnData const& column);
     FeatureTypeId GetTypeId() override {
         return FeatureTypeId::kReal;
     }
@@ -33,9 +34,9 @@ private:
     double upper_bound_;
 };
 
-class IntegerFeature : public Feature {
+class IntegerFeatureBounds : public FeatureBounds {
 public:
-    explicit IntegerFeature(model::TypedColumnData const& column);
+    explicit IntegerFeatureBounds(model::TypedColumnData const& column);
     FeatureTypeId GetTypeId() override {
         return FeatureTypeId::kInteger;
     }

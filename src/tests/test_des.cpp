@@ -12,7 +12,7 @@ protected:
     static algos::StdParamsMap GetParamMap(CSVConfig const& csv_config, double minsup,
                                            double minconf, int popSize, int evalNum,
                                            double crossProb, double diffScale,
-                                           algos::DifferentialStrategy diffStrategy) {
+                                           algos::des::DifferentialStrategy diffStrategy) {
         using namespace config::names;
         return {{kCsvConfig,             csv_config}, {kMinimumSupport, minsup},
                 {kMinimumConfidence,     minconf},    {kPopulationSize, popSize},
@@ -21,8 +21,8 @@ protected:
     }
 
     template <typename... Args>
-    static std::unique_ptr<algos::DES> CreateAlgorithmInstance(Args&&... args) {
-        return algos::CreateAndLoadAlgorithm<algos::DES>(
+    static std::unique_ptr<algos::des::DES> CreateAlgorithmInstance(Args&&... args) {
+        return algos::CreateAndLoadAlgorithm<algos::des::DES>(
                 GetParamMap(std::forward<Args>(args)...));
     }
 };
@@ -30,7 +30,7 @@ protected:
 TEST_F(DESTest, LaunchTest) {
     auto algorithm = CreateAlgorithmInstance(kAbalone, 0.5, 0.6, 100,
                                                              1000, 0.9, 0.8,
-                                                             algos::DifferentialStrategy::best1Exp);
+                                                             algos::des::DifferentialStrategy::best1Exp);
     algorithm->Execute();
     SUCCEED();
 }

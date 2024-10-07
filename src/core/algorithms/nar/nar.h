@@ -1,8 +1,7 @@
 #pragma once
 
 #include <vector>
-
-//#include "attribute.h"
+#include "feature_bounds.h"
 
 
 namespace algos {
@@ -14,8 +13,8 @@ public:
     double support;
     double confidence;
 
-//    std::vector<Attribute> ante;		///< antecedent part of the association rule
-//    std::vector<Attribute> cons;		///< consequent part of the association rule
+    std::vector<std::unique_ptr<FeatureBounds>> ante;
+    std::vector<std::unique_ptr<FeatureBounds>> cons;
 };
 
-} // model
+} // namespace algos

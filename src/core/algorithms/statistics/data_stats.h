@@ -42,7 +42,7 @@ class DataStats : public Algorithm {
     // Calculates values via a certain predivate and returns the minimal of them
     template <class Pred>
     Statistic GetStringMinOf(size_t index, Pred pred) const;
-    // Calculates values via a certain predivate and returns the maximal of them
+    // Calculates values via a certain predivate and returns the maximal of them //FOUND MAX
     template <class Pred>
     Statistic GetStringMaxOf(size_t index, Pred pred) const;
     // Calculates values via a certain predivate and returns the sum of them

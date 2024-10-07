@@ -1,10 +1,10 @@
-#include "feature.h"
+#include "feature_bounds.h"
 
-namespace algos::des {
+namespace algos {
 
     //TODO: ADD NULL CHECKING (IN GENERAL)
 
-CategoricalFeature::CategoricalFeature(model::TypedColumnData const& column) {
+CategoricalFeatureBounds::CategoricalFeatureBounds(model::TypedColumnData const& column) {
     domain_ = std::vector<std::string>();
     for (size_t row_index = 0; row_index < column.GetNumRows(); row_index++) {
         const std::byte* value = column.GetValue(row_index);
@@ -17,7 +17,7 @@ CategoricalFeature::CategoricalFeature(model::TypedColumnData const& column) {
     }
 }
 
-IntegerFeature::IntegerFeature(model::TypedColumnData const& column) {
+IntegerFeatureBounds::IntegerFeatureBounds(model::TypedColumnData const& column) {
     bool initialized = false;
     for (size_t row_index = 0; row_index < column.GetNumRows(); row_index++) {
         const std::byte* value = column.GetValue(row_index);
@@ -37,7 +37,7 @@ IntegerFeature::IntegerFeature(model::TypedColumnData const& column) {
     }
 }
 
-RealFeature::RealFeature(model::TypedColumnData const& column) {
+RealFeatureBounds::RealFeatureBounds(model::TypedColumnData const& column) {
     bool initialized = false;
     for (size_t row_index = 0; row_index < column.GetNumRows(); row_index++) {
         const std::byte* value = column.GetValue(row_index);

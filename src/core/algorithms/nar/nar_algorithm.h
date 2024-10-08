@@ -5,12 +5,13 @@
 #include "model/table/column_layout_typed_relation_data.h"
 #include "config/tabular_data/input_table_type.h"
 
-
 namespace algos {
+
+    using FeatureDomain = std::shared_ptr<const FeatureBounds>;
+    using TypedRelation = model::ColumnLayoutTypedRelationData;
 
 class NARAlgorithm : public Algorithm {
 private:
-    using TypedRelation = model::ColumnLayoutTypedRelationData;
 
     config::InputTable input_table_;
     void RegisterOptions();

@@ -7,6 +7,8 @@
 
 namespace algos::des {
 
+    using FeatureDomain = std::shared_ptr<const FeatureBounds>;
+
 DES::DES() : NARAlgorithm({}) {
     using namespace config::names;
     RegisterOptions();
@@ -16,7 +18,7 @@ void DES::RegisterOptions() {
     DESBORDANTE_OPTION_USING;
 
     DifferentialStrategy default_strategy = DifferentialStrategy::rand1Exp;
-    RegisterOption(Option{&population_, kPopulationSize, kDPopulationSize, 100});
+    RegisterOption(Option{&population_size_, kPopulationSize, kDPopulationSize, 100});
     RegisterOption(Option{&num_evaluations_, kMaxFitnessEvaluations, kDMaxFitnessEvaluations, 1000});
     RegisterOption(Option{&differential_scale_, kDifferentialScale, kDDifferentialScale, 0.5});
     RegisterOption(Option{&crossover_probability_, kCrossoverProbability, kDCrossoverProbability, 0.9});
@@ -64,10 +66,22 @@ void DES::Test() {
     std::shared_ptr<FeatureBounds> double_feat = CreateFeatureBounds(double_column);
     std::shared_ptr<FeatureBounds> int_feat = CreateFeatureBounds(int_column);
     std::cout << double_feat->GetTypeId();
+
+    std::cout << "trying to create an EncodedNARGenerator\n";
+    auto ngen = EncodedNARGenerator(FindFeatureDomains(typed_relation_.get()));
+    //ngen.GenerateUniformRandom();
+}
+
+
+std::vector<FeatureDomain> DES::FindFeatureDomains(TypedRelation const* typed_relation) {
+    return std::vector<FeatureDomain>();
 }
 
 unsigned long long DES::ExecuteInternal() {
     Test();
+    std::vector<FeatureDomain> FeatureDomains = FindFeatureDomains(typed_relation_.get());
+    
+
     return 0;
 }
 

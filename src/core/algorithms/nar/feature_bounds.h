@@ -5,7 +5,7 @@
 #include "algorithms/nar/enums.h"
 
 namespace algos {
-
+    
 class FeatureBounds {
 public:
     virtual FeatureTypeId GetTypeId() = 0;

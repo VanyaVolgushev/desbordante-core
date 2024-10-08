@@ -1,9 +1,14 @@
 #pragma once
 
-namespace model {
+namespace algos::des {
 
 class EncodedNAR {
+public:
+    double fitness;
+    double support;
+    double confidence;
 
+    
 };
 
-} // model
+} // namespace algos::des

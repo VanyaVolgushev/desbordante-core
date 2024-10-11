@@ -2,13 +2,15 @@
 
 #include "model/types/type.h"
 #include "model/table/column_layout_typed_relation_data.h"
-#include "algorithms/nar/enums.h"
+#include <enum.h>
 
-namespace algos {
+namespace model {
+
+BETTER_ENUM(FeatureTypeId, char, kCategorical = 0, kReal, kInteger);
     
 class FeatureBounds {
 public:
-    virtual FeatureTypeId GetTypeId() = 0;
+    virtual FeatureTypeId GetTypeId() const = 0;
 protected:
     FeatureBounds(){}; 
 };
@@ -16,9 +18,7 @@ protected:
 class CategoricalFeatureBounds : public FeatureBounds {
 public:
     explicit CategoricalFeatureBounds(model::TypedColumnData const& column);
-    FeatureTypeId GetTypeId() override {
-        return FeatureTypeId::kCategorical;
-    }
+    FeatureTypeId GetTypeId() const override { return FeatureTypeId::kCategorical; }
 private:
     std::vector<std::string> domain_;
 };
@@ -26,9 +26,7 @@ private:
 class RealFeatureBounds : public FeatureBounds {
 public:
     explicit RealFeatureBounds(model::TypedColumnData const& column);
-    FeatureTypeId GetTypeId() override {
-        return FeatureTypeId::kReal;
-    }
+    FeatureTypeId GetTypeId() const override { return FeatureTypeId::kReal; }
 private:
     double lower_bound_;
     double upper_bound_;
@@ -37,12 +35,12 @@ private:
 class IntegerFeatureBounds : public FeatureBounds {
 public:
     explicit IntegerFeatureBounds(model::TypedColumnData const& column);
-    FeatureTypeId GetTypeId() override {
-        return FeatureTypeId::kInteger;
-    }
+    FeatureTypeId GetTypeId() const override { return FeatureTypeId::kInteger; }
 private:
     long int lower_bound_;
     long int upper_bound_;
 };
 
-} // namespace algos::cfd
+std::shared_ptr<FeatureBounds> CreateFeatureBounds(model::TypedColumnData const& column);
+
+} // namespace model

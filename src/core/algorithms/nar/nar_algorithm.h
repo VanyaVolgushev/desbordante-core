@@ -7,17 +7,16 @@
 
 namespace algos {
 
-    using FeatureDomain = std::shared_ptr<const FeatureBounds>;
+    using model::NAR;
     using TypedRelation = model::ColumnLayoutTypedRelationData;
 
 class NARAlgorithm : public Algorithm {
 private:
-
     config::InputTable input_table_;
     void RegisterOptions();
-    std::list<NAR> nar_collection_;
 
 protected:
+    std::list<NAR> nar_collection_;
     std::unique_ptr<TypedRelation> typed_relation_;
     double minsup_;
     double minconf_;
@@ -26,10 +25,9 @@ protected:
     void MakeExecuteOptsAvailable() override;
 
 public:
-
-    //std::list<model::NarIDs> const& GetArIDsList() const noexcept {
-    //    return nar_collection_;
-    //};
+    std::list<NAR> const& GetNARList() const noexcept {
+        return nar_collection_;
+    };
     void ResetState() override;
     explicit NARAlgorithm(std::vector<std::string_view> phase_names);
 };

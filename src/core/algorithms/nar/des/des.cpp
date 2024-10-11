@@ -3,12 +3,10 @@
 #include "config/names_and_descriptions.h"
 #include "config/option_using.h"
 #include "config/tabular_data/input_table/option.h"
-#include "algorithms/nar/create_feature_bounds.h"
+#include "algorithms/nar/feature_bounds.h"
 
 namespace algos::des {
-
-    using FeatureDomain = std::shared_ptr<const FeatureBounds>;
-
+using model::FeatureBounds;
 DES::DES() : NARAlgorithm({}) {
     using namespace config::names;
     RegisterOptions();
@@ -67,21 +65,74 @@ void DES::Test() {
     std::shared_ptr<FeatureBounds> int_feat = CreateFeatureBounds(int_column);
     std::cout << double_feat->GetTypeId();
 
-    std::cout << "trying to create an EncodedNARGenerator\n";
-    auto ngen = EncodedNARGenerator(FindFeatureDomains(typed_relation_.get()));
-    //ngen.GenerateUniformRandom();
+
+
 }
 
+const FeatureDomains DES::FindFeatureDomains(TypedRelation const* typed_relation) {
+    auto feature_domains = std::vector<std::shared_ptr<FeatureBounds>>();
+    for (size_t i = 0; i < typed_relation->GetNumColumns(); i++) {
+        std::shared_ptr<FeatureBounds> domain = CreateFeatureBounds(typed_relation->GetColumnData(i));
+        feature_domains.emplace_back(domain);
+    }
+    return feature_domains;
+}
 
-std::vector<FeatureDomain> DES::FindFeatureDomains(TypedRelation const* typed_relation) {
-    return std::vector<FeatureDomain>();
+std::vector<EncodedNAR> DES::GetRandomPopulationInDomains(FeatureDomains domains) const {
+    auto feature_type_ids = std::vector<FeatureTypeId>();
+    for (size_t i = 0; i < domains.size(); i++) {
+        feature_type_ids.emplace_back(domains[i]->GetTypeId());
+    }
+    auto encodedNARs = std::vector<EncodedNAR>();
+    for (int i = 0; i < population_size_; i++) {
+        encodedNARs.emplace_back(EncodedNAR(feature_type_ids));
+        encodedNARs[i].Evaluate(typed_relation_.get());
+    }
+    auto CompareByFitness  = [](const EncodedNAR& a, const EncodedNAR& b) -> bool {
+        return a.fitness_ > b.fitness_;
+    };
+    std::sort(encodedNARs.begin(), encodedNARs.end(), CompareByFitness);
+    return encodedNARs;
+}
+
+void DES::EvolvePopulation(std::vector<EncodedNAR>& population) {
+    //TODO
 }
 
 unsigned long long DES::ExecuteInternal() {
-    Test();
-    std::vector<FeatureDomain> FeatureDomains = FindFeatureDomains(typed_relation_.get());
-    
+    FeatureDomains featureDomains = FindFeatureDomains(typed_relation_.get());
+    std::vector<EncodedNAR> encodedNARs = GetRandomPopulationInDomains(featureDomains);
+    for (size_t i = 0; i < encodedNARs.size(); i++) {
+        encodedNARs[i].Evaluate(typed_relation_.get());
+    }
+    //DEBUG
+    for(EncodedNAR enc: encodedNARs) {
+        std::cout << "NAR\n";
+        for(std::shared_ptr<EncodedFeatureBounds> bnd: enc.encoded_feature_bounds_vec_)
+        {
+            switch (bnd->GetTypeId())
+            {
+            case FeatureTypeId::kCategorical:
+            std::shared_ptr<EncodedCategoricalFeatureBounds> bndcat = bnd;
+                std::cout << ((std::shared_ptr<EncodedCategoricalFeatureBounds>)bnd)->value_;
+                break;
+            
+            default:
+                break;
+            }
+        }
+        std::cout
+    }
+    ///DEBUG
+    for (int i = 0; i < num_evaluations_; i++) { //TODO: change num_evaluations type to something unsigned
+        EvolvePopulation(encodedNARs);
+    }
+    for (size_t i = 0; i < encodedNARs.size(); i++) {
+        nar_collection_.emplace_back(encodedNARs[i].Decode());
+    }
 
+
+    Test();
     return 0;
 }
 

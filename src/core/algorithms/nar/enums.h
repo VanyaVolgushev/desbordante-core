@@ -2,7 +2,7 @@
 
 #include <enum.h>
 
-namespace algos {
+namespace model {
 
     BETTER_ENUM(FeatureTypeId, char, kCategorical = 0, kReal, kInteger);
 

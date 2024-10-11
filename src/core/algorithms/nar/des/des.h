@@ -1,12 +1,12 @@
 #pragma once
 
+#include "encoded_nar.h"
 #include "config/names.h"
 #include "algorithms/nar/nar_algorithm.h"
-#include "encoded_nar_generator.h"
 #include "enums.h"
 
 namespace algos::des {
-    using FeatureDomain = std::shared_ptr<const FeatureBounds>;
+    using FeatureDomains = const std::vector<std::shared_ptr<model::FeatureBounds>>;
     using TypedRelation = model::ColumnLayoutTypedRelationData; 
 
 class DES : public NARAlgorithm {
@@ -17,21 +17,19 @@ private:
     double crossover_probability_;
     DifferentialStrategy differential_strategy_ = DifferentialStrategy::rand1Exp;
 
-    std::vector<EncodedNAR> population_;
-
     void RegisterOptions();
     void Test();
 
-    static std::vector<FeatureDomain> FindFeatureDomains(TypedRelation const* typed_relation);
-    static EncodedNAR GetEncodedVecLength (std::vector<std::unique_ptr<const FeatureBounds>> feature_domains);
-    
+    static const FeatureDomains FindFeatureDomains(TypedRelation const* typed_relation);
+    std::vector<EncodedNAR> GetRandomPopulationInDomains(FeatureDomains domains) const;
+    void EvolvePopulation(std::vector<EncodedNAR>& population);
     unsigned long long GenerateAllNARs();
 
 protected:
     void MakeExecuteOptsAvailable() override;
+    unsigned long long ExecuteInternal() override;
 
 public:
-    unsigned long long ExecuteInternal() override;
     DES();
 };
 

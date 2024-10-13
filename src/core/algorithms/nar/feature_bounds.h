@@ -10,37 +10,39 @@ BETTER_ENUM(FeatureTypeId, char, kCategorical = 0, kReal, kInteger);
     
 class FeatureBounds {
 public:
-    virtual FeatureTypeId GetTypeId() const = 0;
+    size_t column_index_;
+    virtual model::TypeId GetTypeId() const = 0;
+    //virtual model:Double GetLowerBound 
 protected:
-    FeatureBounds(){}; 
+    FeatureBounds() {}; 
 };
 
 class CategoricalFeatureBounds : public FeatureBounds {
 public:
-    explicit CategoricalFeatureBounds(model::TypedColumnData const& column);
-    FeatureTypeId GetTypeId() const override { return FeatureTypeId::kCategorical; }
+    explicit CategoricalFeatureBounds(model::TypedColumnData const& column, size_t column_index);
+    model::TypeId GetTypeId() const override { return model::TypeId::kString; }
 private:
-    std::vector<std::string> domain_;
+    std::vector<model::String> domain_;
 };
 
 class RealFeatureBounds : public FeatureBounds {
 public:
-    explicit RealFeatureBounds(model::TypedColumnData const& column);
-    FeatureTypeId GetTypeId() const override { return FeatureTypeId::kReal; }
+    explicit RealFeatureBounds(model::TypedColumnData const& column, size_t column_index);
+    model::TypeId GetTypeId() const override { return model::TypeId::kDouble; }
 private:
-    double lower_bound_;
-    double upper_bound_;
+    model::Double lower_bound_;
+    model::Double upper_bound_;
 };
 
 class IntegerFeatureBounds : public FeatureBounds {
 public:
-    explicit IntegerFeatureBounds(model::TypedColumnData const& column);
-    FeatureTypeId GetTypeId() const override { return FeatureTypeId::kInteger; }
+    explicit IntegerFeatureBounds(model::TypedColumnData const& column, size_t column_index);
+    model::TypeId GetTypeId() const override { return model::TypeId::kInt; }
 private:
-    long int lower_bound_;
-    long int upper_bound_;
+    model::Int lower_bound_;
+    model::Int upper_bound_;
 };
 
-std::shared_ptr<FeatureBounds> CreateFeatureBounds(model::TypedColumnData const& column);
+std::shared_ptr<FeatureBounds> CreateFeatureBounds(model::TypedColumnData const& column, size_t column_index);
 
 } // namespace model

@@ -4,6 +4,7 @@
 #include "config/option_using.h"
 #include "config/tabular_data/input_table/option.h"
 #include "algorithms/nar/feature_bounds.h"
+#include "model/types/types.h"
 
 namespace algos::des {
 using model::FeatureBounds;
@@ -60,33 +61,36 @@ void DES::Test() {
     model::TypedColumnData const& string_column = typed_relation_->GetColumnData(string_column_num);
     model::TypedColumnData const& double_column = typed_relation_->GetColumnData(double_column_num);
     model::TypedColumnData const& int_column = typed_relation_->GetColumnData(integer_column_num);
-    std::shared_ptr<FeatureBounds> string_feat = CreateFeatureBounds(string_column);
-    std::shared_ptr<FeatureBounds> double_feat = CreateFeatureBounds(double_column);
-    std::shared_ptr<FeatureBounds> int_feat = CreateFeatureBounds(int_column);
-    std::cout << double_feat->GetTypeId();
+
+    using namespace model;
 
 
+    std::cout << "\ntype operations:";
+    model::DoubleType double_type;
+    model::IntType int_type;
+    std::byte const* value1 = double_type.MakeValue(-3.141);
+    std::byte const* value2 = int_type.MakeValue(-3);
 
+    std::byte* Artyom = double_type.Allocate();
+    double_type.Max(value1, value2, Artyom);
+    std::cout << "\ncouting Artyom:";
+    double_type.Free(Artyom);
 }
 
 const FeatureDomains DES::FindFeatureDomains(TypedRelation const* typed_relation) {
     auto feature_domains = std::vector<std::shared_ptr<FeatureBounds>>();
     for (size_t i = 0; i < typed_relation->GetNumColumns(); i++) {
-        std::shared_ptr<FeatureBounds> domain = CreateFeatureBounds(typed_relation->GetColumnData(i));
+        std::shared_ptr<FeatureBounds> domain = CreateFeatureBounds(typed_relation->GetColumnData(i), i);
         feature_domains.emplace_back(domain);
     }
     return feature_domains;
 }
 
 std::vector<EncodedNAR> DES::GetRandomPopulationInDomains(FeatureDomains domains) const {
-    auto feature_type_ids = std::vector<FeatureTypeId>();
-    for (size_t i = 0; i < domains.size(); i++) {
-        feature_type_ids.emplace_back(domains[i]->GetTypeId());
-    }
+    return std::vector<EncodedNAR>();
     auto encodedNARs = std::vector<EncodedNAR>();
     for (int i = 0; i < population_size_; i++) {
-        encodedNARs.emplace_back(EncodedNAR(feature_type_ids));
-        encodedNARs[i].Evaluate(typed_relation_.get());
+        encodedNARs.emplace_back(EncodedNAR(domains, typed_relation_.get()));
     }
     auto CompareByFitness  = [](const EncodedNAR& a, const EncodedNAR& b) -> bool {
         return a.fitness_ > b.fitness_;
@@ -100,35 +104,35 @@ void DES::EvolvePopulation(std::vector<EncodedNAR>& population) {
 }
 
 unsigned long long DES::ExecuteInternal() {
-    FeatureDomains featureDomains = FindFeatureDomains(typed_relation_.get());
-    std::vector<EncodedNAR> encodedNARs = GetRandomPopulationInDomains(featureDomains);
+    FeatureDomains feature_domains = FindFeatureDomains(typed_relation_.get());
+    std::vector<EncodedNAR> encodedNARs = GetRandomPopulationInDomains(feature_domains);
     for (size_t i = 0; i < encodedNARs.size(); i++) {
-        encodedNARs[i].Evaluate(typed_relation_.get());
+        encodedNARs[i].Evaluate(feature_domains,typed_relation_.get());
     }
     //DEBUG
-    for(EncodedNAR enc: encodedNARs) {
-        std::cout << "NAR\n";
-        for(std::shared_ptr<EncodedFeatureBounds> bnd: enc.encoded_feature_bounds_vec_)
-        {
-            switch (bnd->GetTypeId())
-            {
-            case FeatureTypeId::kCategorical:
-            std::shared_ptr<EncodedCategoricalFeatureBounds> bndcat = bnd;
-                std::cout << ((std::shared_ptr<EncodedCategoricalFeatureBounds>)bnd)->value_;
-                break;
-            
-            default:
-                break;
-            }
-        }
-        std::cout
-    }
+    //for(EncodedNAR enc: encodedNARs) {
+    //    std::cout << "NAR\n";
+    //    for(std::shared_ptr<EncodedFeatureBounds> bounds: enc.encoded_feature_bounds_vec_)
+    //    {
+    //        switch (bounds->GetTypeId())
+    //        {
+    //        case FeatureTypeId::kCategorical:
+    //        std::shared_ptr<EncodedCategoricalFeatureBounds> bndcat = bnd;
+    //            std::cout << ((std::shared_ptr<EncodedCategoricalFeatureBounds>)bnd)->value_;
+    //            break;
+    //        
+    //        default:
+    //            break;
+    //        }
+    //    }
+    //    std::cout
+    //}
     ///DEBUG
     for (int i = 0; i < num_evaluations_; i++) { //TODO: change num_evaluations type to something unsigned
         EvolvePopulation(encodedNARs);
     }
     for (size_t i = 0; i < encodedNARs.size(); i++) {
-        nar_collection_.emplace_back(encodedNARs[i].Decode());
+        nar_collection_.emplace_back(encodedNARs[i].Decode(feature_domains));
     }
 
 

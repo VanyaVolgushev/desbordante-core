@@ -4,25 +4,30 @@ namespace algos::des {
 
 using model::NAR;
 
-double EncodedNAR::Evaluate(TypedRelation const* typed_relation) {
-    NAR this_decoded = Decode();
+double EncodedNAR::Evaluate(FeatureDomains domains, TypedRelation const* typed_relation) {
+    NAR this_decoded = Decode(domains);
     if(this_decoded.ante_.size() == 0 || this_decoded.cons_.size() == 0) {
         return 0.0;
     }
+    for (size_t i = 0; i < typed_relation->GetNumRows(); i++) {
+        for(model::TypedColumnData const& column: typed_relation->GetColumnData()) {
+            column[i] //TODO: RIGHT NOW
+        }
+    }
+
+
     //this_decoded.
 }
 
-NAR EncodedNAR::Decode() const {
-    //TODO
-    return NAR();
+NAR EncodedNAR::Decode(FeatureDomains domains) const {
+    auto resultNAR = NAR();
+
+    return resultNAR;
 }
 
-EncodedNAR::EncodedNAR(const std::vector<FeatureTypeId> feature_types) {
-    for (size_t i = 0; i < feature_types.size(); i++)
-    {
-        auto encoded_feature_bounds = CreateEncodedFeatureBounds(feature_types[i]);
-        encoded_feature_bounds_vec_.emplace_back(encoded_feature_bounds);
-    }
+EncodedNAR::EncodedNAR(FeatureDomains domains, TypedRelation const* typed_relation) {
+    //TODO
+    Evaluate(domains, typed_relation);
 }
 
 }  // namespace algos::des

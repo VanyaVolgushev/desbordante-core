@@ -25,12 +25,14 @@ double EncodedNAR::Evaluate(FeatureDomains domains, TypedRelation const* typed_r
 
 NAR EncodedNAR::Decode(FeatureDomains domains) const {
     auto resultNAR = NAR();
-
+    //TODO
     return resultNAR;
 }
 
 EncodedNAR::EncodedNAR(FeatureDomains domains, TypedRelation const* typed_relation) {
-    //TODO
+    //for(size_t feature_index; feature_index) {
+    //    encoded_feature_bounds_vec_.
+    //}
     Evaluate(domains, typed_relation);
 }
 

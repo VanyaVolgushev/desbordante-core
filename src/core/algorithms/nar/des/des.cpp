@@ -87,7 +87,6 @@ const FeatureDomains DES::FindFeatureDomains(TypedRelation const* typed_relation
 }
 
 std::vector<EncodedNAR> DES::GetRandomPopulationInDomains(FeatureDomains domains) const {
-    return std::vector<EncodedNAR>();
     auto encodedNARs = std::vector<EncodedNAR>();
     for (int i = 0; i < population_size_; i++) {
         encodedNARs.emplace_back(EncodedNAR(domains, typed_relation_.get()));

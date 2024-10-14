@@ -13,8 +13,8 @@ public:
     double support_ = -1;
     double confidence_ = -1;
 
-    std::map<size_t, std::unique_ptr<FeatureBounds>> ante_= std::map<size_t, std::unique_ptr<FeatureBounds>>();
-    std::map<size_t, std::unique_ptr<FeatureBounds>> cons_= std::map<size_t, std::unique_ptr<FeatureBounds>>();
+    std::map<size_t, std::shared_ptr<FeatureBounds>> ante_= std::map<size_t, std::shared_ptr<FeatureBounds>>();
+    std::map<size_t, std::shared_ptr<FeatureBounds>> cons_= std::map<size_t, std::shared_ptr<FeatureBounds>>();
 
     bool IncludesInAnte(size_t feature_index, const std::byte* value) const {
         return MapIncludes(ante_, feature_index, value);
@@ -25,7 +25,7 @@ public:
     }
 
 private:
-    static bool MapIncludes(std::map<size_t, std::unique_ptr<FeatureBounds>> map, size_t feature_index, const std::byte* value) {
+    static bool MapIncludes(std::map<size_t, std::shared_ptr<FeatureBounds>> map, size_t feature_index, const std::byte* value) {
         for(auto const& iterator: map) {
             if (iterator.first != feature_index) {
                 continue;

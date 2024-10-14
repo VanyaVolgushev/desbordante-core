@@ -11,7 +11,8 @@ BETTER_ENUM(FeatureTypeId, char, kCategorical = 0, kReal, kInteger);
 class FeatureBounds {
 public:
     size_t column_index_;
-    virtual model::TypeId GetTypeId() const = 0;
+    virtual TypeId GetTypeId() const = 0;
+    virtual bool Includes(const std::byte* value) const = 0;
     //virtual model:Double GetLowerBound 
 protected:
     FeatureBounds() {}; 
@@ -19,30 +20,52 @@ protected:
 
 class CategoricalFeatureBounds : public FeatureBounds {
 public:
-    explicit CategoricalFeatureBounds(model::TypedColumnData const& column, size_t column_index);
-    model::TypeId GetTypeId() const override { return model::TypeId::kString; }
+    explicit CategoricalFeatureBounds(TypedColumnData const& column, size_t column_index);
+    TypeId GetTypeId() const override { return TypeId::kString; }
+    bool Includes(const std::byte* value) const override {
+        String svalue = Type::GetValue<String>(value);
+        return std::find(domain_.begin(), domain_.end(), svalue) != domain_.end();
+    }
 private:
-    std::vector<model::String> domain_;
+    std::vector<String> domain_;
 };
 
 class RealFeatureBounds : public FeatureBounds {
 public:
-    explicit RealFeatureBounds(model::TypedColumnData const& column, size_t column_index);
-    model::TypeId GetTypeId() const override { return model::TypeId::kDouble; }
+    explicit RealFeatureBounds(TypedColumnData const& column, size_t column_index);
+    TypeId GetTypeId() const override { return TypeId::kDouble; }
+    bool Includes(const std::byte* value) const override {
+        Double dvalue = Type::GetValue<Double>(value);
+        bool flipped = lower_bound_ > upper_bound_;
+        if(flipped) {
+            return dvalue < lower_bound_ && dvalue > upper_bound_;
+        } else {
+            return dvalue > lower_bound_ && dvalue < upper_bound_;
+        }
+    }
 private:
-    model::Double lower_bound_;
-    model::Double upper_bound_;
+    Double upper_bound_;
+    Double lower_bound_;
 };
 
 class IntegerFeatureBounds : public FeatureBounds {
 public:
-    explicit IntegerFeatureBounds(model::TypedColumnData const& column, size_t column_index);
-    model::TypeId GetTypeId() const override { return model::TypeId::kInt; }
+    explicit IntegerFeatureBounds(TypedColumnData const& column, size_t column_index);
+    TypeId GetTypeId() const override { return TypeId::kInt; }
+    bool Includes(const std::byte* value) const override {
+        Int ivalue = Type::GetValue<Int>(value);
+        bool flipped = lower_bound_ > upper_bound_;
+        if(flipped) {
+            return ivalue < lower_bound_ && ivalue > upper_bound_;
+        } else {
+            return ivalue > lower_bound_ && ivalue < upper_bound_;
+        }
+    }
 private:
-    model::Int lower_bound_;
-    model::Int upper_bound_;
+    Int upper_bound_;
+    Int lower_bound_;
 };
 
-std::shared_ptr<FeatureBounds> CreateFeatureBounds(model::TypedColumnData const& column, size_t column_index);
+std::shared_ptr<FeatureBounds> CreateFeatureBounds(TypedColumnData const& column, size_t column_index);
 
 } // namespace model

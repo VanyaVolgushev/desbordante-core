@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "feature_bounds.h"
+#include "model/types/types.h"
 
 namespace model {
 
@@ -15,7 +16,26 @@ public:
     std::map<size_t, std::unique_ptr<FeatureBounds>> ante_= std::map<size_t, std::unique_ptr<FeatureBounds>>();
     std::map<size_t, std::unique_ptr<FeatureBounds>> cons_= std::map<size_t, std::unique_ptr<FeatureBounds>>();
 
-    bool Includes()
+    bool IncludesInAnte(size_t feature_index, const std::byte* value) const {
+        return MapIncludes(ante_, feature_index, value);
+    }
+
+    bool IncludesInCons(size_t feature_index, const std::byte* value) const {
+        return MapIncludes(cons_, feature_index, value);
+    }
+
+private:
+    static bool MapIncludes(std::map<size_t, std::unique_ptr<FeatureBounds>> map, size_t feature_index, const std::byte* value) {
+        for(auto const& iterator: map) {
+            if (iterator.first != feature_index) {
+                continue;
+            }
+            if (iterator.second->Includes(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 };
 
 } // namespace algos

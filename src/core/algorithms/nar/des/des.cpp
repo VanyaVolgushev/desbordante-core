@@ -65,16 +65,16 @@ void DES::Test() {
     using namespace model;
 
 
-    std::cout << "\ntype operations:";
-    model::DoubleType double_type;
-    model::IntType int_type;
-    std::byte const* value1 = double_type.MakeValue(-3.141);
-    std::byte const* value2 = int_type.MakeValue(-3);
-
-    std::byte* Artyom = double_type.Allocate();
-    double_type.Max(value1, value2, Artyom);
-    std::cout << "\ncouting Artyom:";
-    double_type.Free(Artyom);
+    //std::cout << "\ntype operations:";
+    //model::DoubleType double_type;
+    //model::IntType int_type;
+    //std::byte const* value1 = double_type.MakeValue(-3.141);
+    //std::byte const* value2 = int_type.MakeValue(-3);
+//
+    //std::byte* Artyom = double_type.Allocate();
+    //double_type.Max(value1, value2, Artyom);
+    //std::cout << "\ncouting Artyom:";
+    //double_type.Free(Artyom);
 }
 
 const FeatureDomains DES::FindFeatureDomains(TypedRelation const* typed_relation) {

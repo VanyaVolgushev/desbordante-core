@@ -6,7 +6,7 @@
 #include "enums.h"
 
 namespace algos::des {
-    using FeatureDomains = const std::vector<std::shared_ptr<model::FeatureBounds>>;
+    using FeatureDomains = const std::vector<std::shared_ptr<model::ValueRange>>;
     using TypedRelation = model::ColumnLayoutTypedRelationData; 
 
 class DES : public NARAlgorithm {

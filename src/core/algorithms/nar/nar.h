@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "feature_bounds.h"
+#include "value_range.h"
 #include "model/types/types.h"
 
 namespace model {
@@ -13,8 +13,8 @@ public:
     double support_ = -1;
     double confidence_ = -1;
 
-    std::map<size_t, std::shared_ptr<FeatureBounds>> ante_= std::map<size_t, std::shared_ptr<FeatureBounds>>();
-    std::map<size_t, std::shared_ptr<FeatureBounds>> cons_= std::map<size_t, std::shared_ptr<FeatureBounds>>();
+    std::map<size_t, std::shared_ptr<ValueRange>> ante_= std::map<size_t, std::shared_ptr<ValueRange>>();
+    std::map<size_t, std::shared_ptr<ValueRange>> cons_= std::map<size_t, std::shared_ptr<ValueRange>>();
 
     bool IncludesInAnte(size_t feature_index, const std::byte* value) const {
         return MapIncludes(ante_, feature_index, value);
@@ -25,7 +25,8 @@ public:
     }
 
 private:
-    static bool MapIncludes(std::map<size_t, std::shared_ptr<FeatureBounds>> map, size_t feature_index, const std::byte* value) {
+    //TODO: name std::map<size_t, std::shared_ptr<ValueRange>> something
+    static bool MapIncludes(std::map<size_t, std::shared_ptr<ValueRange>> map, size_t feature_index, const std::byte* value) {
         for(auto const& iterator: map) {
             if (iterator.first != feature_index) {
                 continue;
@@ -38,4 +39,4 @@ private:
     }
 };
 
-} // namespace algos
+} // namespace model

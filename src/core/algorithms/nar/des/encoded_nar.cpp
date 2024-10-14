@@ -30,9 +30,11 @@ NAR EncodedNAR::Decode(FeatureDomains domains) const {
 }
 
 EncodedNAR::EncodedNAR(FeatureDomains domains, TypedRelation const* typed_relation) {
-    //for(size_t feature_index; feature_index) {
-    //    encoded_feature_bounds_vec_.
-    //}
+    size_t feature_count = domains.size();
+    for(size_t feature_index = 0; feature_index < feature_count; feature_index++) {
+        encoded_feature_ranges.emplace_back(EncodedFeatureRange(feature_index));
+    }
+    implication_sign_pos_ = RNG().Next();
     Evaluate(domains, typed_relation);
 }
 

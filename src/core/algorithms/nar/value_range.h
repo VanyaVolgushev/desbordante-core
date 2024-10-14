@@ -6,21 +6,18 @@
 
 namespace model {
 
-BETTER_ENUM(FeatureTypeId, char, kCategorical = 0, kReal, kInteger);
-    
-class FeatureBounds {
+class ValueRange {
 public:
-    size_t column_index_;
     virtual TypeId GetTypeId() const = 0;
     virtual bool Includes(const std::byte* value) const = 0;
     //virtual model:Double GetLowerBound 
 protected:
-    FeatureBounds() {}; 
+    ValueRange() {}; 
 };
 
-class CategoricalFeatureBounds : public FeatureBounds {
+class CategoricalValueRange : public ValueRange {
 public:
-    explicit CategoricalFeatureBounds(TypedColumnData const& column, size_t column_index);
+    explicit CategoricalValueRange(TypedColumnData const& column);
     TypeId GetTypeId() const override { return TypeId::kString; }
     bool Includes(const std::byte* value) const override {
         String svalue = Type::GetValue<String>(value);
@@ -30,9 +27,9 @@ private:
     std::vector<String> domain_;
 };
 
-class RealFeatureBounds : public FeatureBounds {
+class RealValueRange : public ValueRange {
 public:
-    explicit RealFeatureBounds(TypedColumnData const& column, size_t column_index);
+    explicit RealValueRange(TypedColumnData const& column);
     TypeId GetTypeId() const override { return TypeId::kDouble; }
     bool Includes(const std::byte* value) const override {
         Double dvalue = Type::GetValue<Double>(value);
@@ -48,9 +45,9 @@ private:
     Double lower_bound_;
 };
 
-class IntegerFeatureBounds : public FeatureBounds {
+class IntegerValueRange : public ValueRange {
 public:
-    explicit IntegerFeatureBounds(TypedColumnData const& column, size_t column_index);
+    explicit IntegerValueRange(TypedColumnData const& column);
     TypeId GetTypeId() const override { return TypeId::kInt; }
     bool Includes(const std::byte* value) const override {
         Int ivalue = Type::GetValue<Int>(value);
@@ -66,6 +63,6 @@ private:
     Int lower_bound_;
 };
 
-std::shared_ptr<FeatureBounds> CreateFeatureBounds(TypedColumnData const& column, size_t column_index);
+std::shared_ptr<ValueRange> CreateValueRange(TypedColumnData const& column);
 
 } // namespace model

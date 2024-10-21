@@ -10,14 +10,12 @@ class EncodedNAR {
     using TypedRelation = model::ColumnLayoutTypedRelationData;
     using FeatureDomains = const std::vector<std::shared_ptr<model::ValueRange>>;
 public:
-    double fitness = -1;
-    double support = -1;
-    double confidence = -1;
+    model::NARQualities qualities;
 
     double implication_sign_pos = -1;
     std::vector<EncodedValueRange> encoded_feature_ranges = std::vector<EncodedValueRange>();
     // sets fitness support and confidence
-    void Evaluate(FeatureDomains domains, TypedRelation const* typed_relation);
+    void SetQualities(FeatureDomains domains, TypedRelation const* typed_relation);
     model::NAR Decode(FeatureDomains domains) const;
     EncodedNAR(FeatureDomains domains, TypedRelation const* typed_relation);
 private:

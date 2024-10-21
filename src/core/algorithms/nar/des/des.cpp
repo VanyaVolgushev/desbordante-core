@@ -86,7 +86,7 @@ std::vector<EncodedNAR> DES::GetRandomPopulationInDomains(FeatureDomains domains
         encodedNARs.emplace_back(EncodedNAR(domains, typed_relation_.get()));
     }
     auto CompareByFitness  = [](const EncodedNAR& a, const EncodedNAR& b) -> bool {
-        return a.fitness > b.fitness;
+        return a.qualities.fitness > b.qualities.fitness;
     };
     std::sort(encodedNARs.begin(), encodedNARs.end(), CompareByFitness);
     return encodedNARs;
@@ -119,11 +119,15 @@ unsigned long long DES::ExecuteInternal() {
     //    std::cout
     //}
     ///DEBUG
-    for (int i = 0; i < num_evaluations_; i++) { //TODO: change num_evaluations type to something unsigned
-        EvolvePopulation(encodedNARs);
-    }
+
+    //for (int i = 0; i < num_evaluations_; i++) { //TODO: change num_evaluations type to something unsigned
+    //    EvolvePopulation(encodedNARs);
+    //}
+    
     for (size_t i = 0; i < encodedNARs.size(); i++) {
-        nar_collection_.emplace_back(encodedNARs[i].Decode(feature_domains));
+        NAR decoded = encodedNARs[i].Decode(feature_domains);
+        decoded.SetQualities(typed_relation_.get());
+        nar_collection_.emplace_back(decoded);
     }
 
     Test();

@@ -3,15 +3,20 @@
 #include <vector>
 #include "value_range.h"
 #include "model/types/types.h"
+#include "model/table/column_layout_typed_relation_data.h"
 
 namespace model {
 
+struct NARQualities {
+    double fitness;
+    double support;
+    double confidence;
+};
+
 class NAR {
 public:
-
-    double fitness = -1;
-    double support = -1;
-    double confidence = -1;
+    using TypedRelation = model::ColumnLayoutTypedRelationData; 
+    NARQualities qualities;
 
     std::map<size_t, std::shared_ptr<ValueRange>> ante = std::map<size_t, std::shared_ptr<ValueRange>>();
     std::map<size_t, std::shared_ptr<ValueRange>> cons = std::map<size_t, std::shared_ptr<ValueRange>>();
@@ -24,51 +29,11 @@ public:
         return MapIncludes(cons, feature_index, value);
     }
 
-    std::string ToString() const {
-        std::string result;
-        result += std::to_string(fitness);
-        result += " {";
-        size_t antecounter = 0;
-        for (const auto & [key, value]: ante) {
-            if(antecounter > 0) {
-                result += ", ";
-            }
-            result += std::to_string(key);
-            result += ": ";
-            result += value->ToString();
-            antecounter++;
-        }
-        result += "} ===> {";
-        size_t conscounter = 0;
-        for (const auto & [key, value]: cons) {
-            if(conscounter > 0) {
-                result += ", ";
-            }
-            result += std::to_string(key);
-            result += ": ";
-            result += value->ToString();
-            conscounter++;
-        }
-        result += "} s: ";
-        result += std::to_string(support);
-        result += " c: ";
-        result += std::to_string(confidence);
-        return result;
-    }
-
+    std::string ToString() const;
+    NARQualities SetQualities(TypedRelation const* typed_relation);
 private:
     //TODO: name std::map<size_t, std::shared_ptr<ValueRange>> something
-    static bool MapIncludes(std::map<size_t, std::shared_ptr<ValueRange>> map, size_t feature_index, const std::byte* value) {
-        for(auto const& iterator: map) {
-            if (iterator.first != feature_index) {
-                continue;
-            }
-            if (iterator.second->Includes(value)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    static bool MapIncludes(std::map<size_t, std::shared_ptr<ValueRange>> map, size_t feature_index, const std::byte* value);
 };
 
 } // namespace model

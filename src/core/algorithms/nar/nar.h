@@ -49,9 +49,9 @@ public:
             result += value->ToString();
             conscounter++;
         }
-        result += "} ";
+        result += "} s: ";
         result += std::to_string(support);
-        result += " ";
+        result += " c: ";
         result += std::to_string(confidence);
         return result;
     }

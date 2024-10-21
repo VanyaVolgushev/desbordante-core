@@ -103,7 +103,7 @@ unsigned long long DES::ExecuteInternal() {
     //DEBUG
     //for(EncodedNAR enc: encodedNARs) {
     //    std::cout << "NAR\n";
-    //    for(std::shared_ptr<EncodedFeatureRange> bounds: enc.encoded_feature_ranges)
+    //    for(std::shared_ptr<EncodedValueRange> bounds: enc.encoded_feature_ranges)
     //    {
     //        switch (bounds->GetTypeId())
     //        {

@@ -49,12 +49,7 @@ public:
     TypeId GetTypeId() const override { return TypeId::kDouble; }
     bool Includes(const std::byte* value) const override {
         Double dvalue = Type::GetValue<Double>(value);
-        bool flipped = lower_bound_ > upper_bound_;
-        if(flipped) {
-            return dvalue < lower_bound_ && dvalue > upper_bound_;
-        } else {
-            return dvalue > lower_bound_ && dvalue < upper_bound_;
-        }
+        return dvalue > lower_bound_ && dvalue < upper_bound_;
     }
     std::string ToString() const override {
         std::string result;
@@ -74,12 +69,7 @@ public:
     TypeId GetTypeId() const override { return TypeId::kInt; }
     bool Includes(const std::byte* value) const override {
         Int ivalue = Type::GetValue<Int>(value);
-        bool flipped = lower_bound_ > upper_bound_;
-        if(flipped) {
-            return ivalue < lower_bound_ && ivalue > upper_bound_;
-        } else {
-            return ivalue > lower_bound_ && ivalue < upper_bound_;
-        }
+        return ivalue >= lower_bound_ && ivalue <= upper_bound_;
     }
     std::string ToString() const override {
         std::string result;

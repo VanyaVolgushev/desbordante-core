@@ -74,7 +74,7 @@ NAR EncodedNAR::Decode(FeatureDomains domains) const {
     uint handling_feat_num = -1;
     for(size_t feature_index: feature_order) {
         handling_feat_num++;
-        EncodedFeatureRange encoded_feature = encoded_feature_ranges[feature_index];
+        EncodedValueRange encoded_feature = encoded_feature_ranges[feature_index];
         if (encoded_feature.threshold < RNG().Next()) {
             continue;
         }
@@ -91,7 +91,7 @@ NAR EncodedNAR::Decode(FeatureDomains domains) const {
 EncodedNAR::EncodedNAR(FeatureDomains domains, TypedRelation const* typed_relation) {
     size_t feature_count = domains.size();
     for(size_t feature_index = 0; feature_index < feature_count; feature_index++) {
-        encoded_feature_ranges.emplace_back(EncodedFeatureRange());
+        encoded_feature_ranges.emplace_back(EncodedValueRange());
     }
     implication_sign_pos = RNG().Next();
     Evaluate(domains, typed_relation);

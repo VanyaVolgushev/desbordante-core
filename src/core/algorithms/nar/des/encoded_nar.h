@@ -1,6 +1,6 @@
 #pragma once
 
-#include "encoded_feature_range.h"
+#include "encoded_value_range.h"
 #include "algorithms/nar/nar.h"
 #include "model/table/column_layout_typed_relation_data.h"
 
@@ -15,7 +15,7 @@ public:
     double confidence = -1;
 
     double implication_sign_pos = -1;
-    std::vector<EncodedFeatureRange> encoded_feature_ranges = std::vector<EncodedFeatureRange>();
+    std::vector<EncodedValueRange> encoded_feature_ranges = std::vector<EncodedValueRange>();
     // sets fitness support and confidence
     void Evaluate(FeatureDomains domains, TypedRelation const* typed_relation);
     model::NAR Decode(FeatureDomains domains) const;

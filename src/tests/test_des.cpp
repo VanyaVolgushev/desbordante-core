@@ -32,8 +32,13 @@ TEST_F(DESTest, LaunchTest) {
                                                              10000, 0.9, 0.8,
                                                              algos::des::DifferentialStrategy::best1Exp);
     algorithm->Execute();
+    size_t counter = 0;
     for (model::NAR nar: algorithm->GetNARList()) {
+        counter++;
         std::cout << nar.ToString() << "\n";
+        if(counter > 100) {
+            break;
+        }
     }
     SUCCEED();
 }

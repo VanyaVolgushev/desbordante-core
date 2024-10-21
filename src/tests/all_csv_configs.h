@@ -15,6 +15,8 @@ extern CSVConfig const kWdcPlanetz;
 extern CSVConfig const kWdcAge;
 extern CSVConfig const kTestWide;
 extern CSVConfig const kAbalone;
+extern CSVConfig const kVGSales;
+extern CSVConfig const kSimpleUltimate;
 extern CSVConfig const kIris;
 extern CSVConfig const kAdult;
 extern CSVConfig const kBreastCancer;

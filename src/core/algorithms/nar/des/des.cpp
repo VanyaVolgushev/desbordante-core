@@ -30,11 +30,6 @@ void DES::MakeExecuteOptsAvailable() {
                          kCrossoverProbability, kDifferentialStrategy});
 }
 
-unsigned long long DES::GenerateAllNARs() {
-    //TODO
-    return 0;
-}
-
 void DES::Test() {
     for (uint columnIndex = 0; columnIndex < typed_relation_->GetNumColumns(); ++columnIndex) {
         size_t num_rows = typed_relation_->GetColumnData(columnIndex).GetNumRows();
@@ -69,7 +64,7 @@ void DES::Test() {
     //model::IntType int_type;
     //std::byte const* value1 = double_type.MakeValue(-3.141);
     //std::byte const* value2 = int_type.MakeValue(-3);
-//
+
     //std::byte* Artyom = double_type.Allocate();
     //double_type.Max(value1, value2, Artyom);
     //std::cout << "\ncouting Artyom:";
@@ -91,7 +86,7 @@ std::vector<EncodedNAR> DES::GetRandomPopulationInDomains(FeatureDomains domains
         encodedNARs.emplace_back(EncodedNAR(domains, typed_relation_.get()));
     }
     auto CompareByFitness  = [](const EncodedNAR& a, const EncodedNAR& b) -> bool {
-        return a.fitness_ > b.fitness_;
+        return a.fitness > b.fitness;
     };
     std::sort(encodedNARs.begin(), encodedNARs.end(), CompareByFitness);
     return encodedNARs;

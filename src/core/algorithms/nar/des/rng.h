@@ -16,5 +16,4 @@ public:
     }
 };
 
-
 } // namespace algos::des

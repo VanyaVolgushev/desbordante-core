@@ -9,19 +9,51 @@ namespace model {
 class NAR {
 public:
 
-    double fitness_ = -1;
-    double support_ = -1;
-    double confidence_ = -1;
+    double fitness = -1;
+    double support = -1;
+    double confidence = -1;
 
-    std::map<size_t, std::shared_ptr<ValueRange>> ante_= std::map<size_t, std::shared_ptr<ValueRange>>();
-    std::map<size_t, std::shared_ptr<ValueRange>> cons_= std::map<size_t, std::shared_ptr<ValueRange>>();
+    std::map<size_t, std::shared_ptr<ValueRange>> ante = std::map<size_t, std::shared_ptr<ValueRange>>();
+    std::map<size_t, std::shared_ptr<ValueRange>> cons = std::map<size_t, std::shared_ptr<ValueRange>>();
 
     bool IncludesInAnte(size_t feature_index, const std::byte* value) const {
-        return MapIncludes(ante_, feature_index, value);
+        return MapIncludes(ante, feature_index, value);
     }
 
     bool IncludesInCons(size_t feature_index, const std::byte* value) const {
-        return MapIncludes(cons_, feature_index, value);
+        return MapIncludes(cons, feature_index, value);
+    }
+
+    std::string ToString() const {
+        std::string result;
+        result += std::to_string(fitness);
+        result += " {";
+        size_t antecounter = 0;
+        for (const auto & [key, value]: ante) {
+            if(antecounter > 0) {
+                result += ", ";
+            }
+            result += std::to_string(key);
+            result += ": ";
+            result += value->ToString();
+            antecounter++;
+        }
+        result += "} ===> {";
+        size_t conscounter = 0;
+        for (const auto & [key, value]: cons) {
+            if(conscounter > 0) {
+                result += ", ";
+            }
+            result += std::to_string(key);
+            result += ": ";
+            result += value->ToString();
+            conscounter++;
+        }
+        result += "} ";
+        result += std::to_string(support);
+        result += " ";
+        result += std::to_string(confidence);
+        return result;
     }
 
 private:

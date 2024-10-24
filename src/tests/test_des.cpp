@@ -28,12 +28,12 @@ protected:
 };
 
 TEST_F(DESTest, LaunchTest) {
-    auto algorithm = CreateAlgorithmInstance(kSimpleUltimate, 0.5, 0.6, 5000,
-                                                             10000, 0.9, 0.8,
-                                                             algos::des::DifferentialStrategy::best1Exp);
+    auto algorithm = CreateAlgorithmInstance(kAbalone, 0.5, 0.6, 100,
+                                                             1000, 0.9, 0.5,
+                                                             algos::des::DifferentialStrategy::rand1Bin);
     algorithm->Execute();
     size_t counter = 0;
-    for (model::NAR nar: algorithm->GetNARList()) {
+    for (model::NAR nar: algorithm->GetNARVector()) {
         counter++;
         std::cout << nar.ToString() << "\n";
         if(counter > 100) {

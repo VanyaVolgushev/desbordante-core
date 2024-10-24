@@ -49,7 +49,7 @@ public:
     TypeId GetTypeId() const override { return TypeId::kDouble; }
     bool Includes(const std::byte* value) const override {
         Double dvalue = Type::GetValue<Double>(value);
-        return dvalue > lower_bound_ && dvalue < upper_bound_;
+        return dvalue >= lower_bound_ && dvalue <= upper_bound_;
     }
     std::string ToString() const override {
         std::string result;

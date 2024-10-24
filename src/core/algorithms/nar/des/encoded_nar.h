@@ -16,8 +16,10 @@ public:
     std::vector<EncodedValueRange> encoded_feature_ranges = std::vector<EncodedValueRange>();
     // sets fitness support and confidence
     void SetQualities(FeatureDomains domains, TypedRelation const* typed_relation);
+    
     model::NAR Decode(FeatureDomains domains) const;
     EncodedNAR(FeatureDomains domains, TypedRelation const* typed_relation);
+    EncodedNAR(size_t feature_count);
 private:
 //    double CalculateSupport(model::NAR, FeatureDomains domains, TypedRelation const* typed_relation);
 //    double CalculateConfidence(model::NAR, FeatureDomains domains, TypedRelation const* typed_relation);

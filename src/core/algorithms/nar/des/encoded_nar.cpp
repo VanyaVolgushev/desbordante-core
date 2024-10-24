@@ -51,4 +51,11 @@ EncodedNAR::EncodedNAR(FeatureDomains domains, TypedRelation const* typed_relati
     SetQualities(domains, typed_relation);
 }
 
+EncodedNAR::EncodedNAR(size_t feature_count) {
+    for(size_t feature_index = 0; feature_index < feature_count; feature_index++) {
+        encoded_feature_ranges.emplace_back(EncodedValueRange());
+    }
+    implication_sign_pos = RNG().Next();
+}
+
 }  // namespace algos::des

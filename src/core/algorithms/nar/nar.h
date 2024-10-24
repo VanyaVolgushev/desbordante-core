@@ -8,9 +8,9 @@
 namespace model {
 
 struct NARQualities {
-    double fitness;
-    double support;
-    double confidence;
+    double fitness = -1.0;
+    double support = -1.0;
+    double confidence = -1.0;
 };
 
 class NAR {
@@ -21,19 +21,20 @@ public:
     std::map<size_t, std::shared_ptr<ValueRange>> ante = std::map<size_t, std::shared_ptr<ValueRange>>();
     std::map<size_t, std::shared_ptr<ValueRange>> cons = std::map<size_t, std::shared_ptr<ValueRange>>();
 
-    bool IncludesInAnte(size_t feature_index, const std::byte* value) const {
-        return MapIncludes(ante, feature_index, value);
+    bool AnteFitsValue(size_t feature_index, const std::byte* value_of_feature) const {
+        return MapFitsValue(ante, feature_index, value_of_feature);
     }
 
-    bool IncludesInCons(size_t feature_index, const std::byte* value) const {
-        return MapIncludes(cons, feature_index, value);
+    bool ConsFitsValue(size_t feature_index, const std::byte* value_of_feature) const {
+        return MapFitsValue(cons, feature_index, value_of_feature);
     }
 
-    std::string ToString() const;
     NARQualities SetQualities(TypedRelation const* typed_relation);
+    std::string ToString() const;
 private:
     //TODO: name std::map<size_t, std::shared_ptr<ValueRange>> something
-    static bool MapIncludes(std::map<size_t, std::shared_ptr<ValueRange>> map, size_t feature_index, const std::byte* value);
+    //std::tuple<bool, bool> 
+    static bool MapFitsValue(std::map<size_t, std::shared_ptr<ValueRange>> map, size_t feature_index, const std::byte* value);
 };
 
 } // namespace model

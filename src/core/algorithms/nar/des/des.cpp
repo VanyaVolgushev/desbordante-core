@@ -16,12 +16,12 @@ DES::DES() : NARAlgorithm({}) {
 void DES::RegisterOptions() {
     DESBORDANTE_OPTION_USING;
 
-    DifferentialStrategy default_strategy = DifferentialStrategy::rand1Exp;
+    DifferentialStrategy default_strategy = DifferentialStrategy::rand1Bin;
     RegisterOption(Option{&population_size_, kPopulationSize, kDPopulationSize, 100});
     RegisterOption(Option{&num_evaluations_, kMaxFitnessEvaluations, kDMaxFitnessEvaluations, 1000});
-    RegisterOption(Option{&differential_scale_, kDifferentialScale, kDDifferentialScale, 0.5});
-    RegisterOption(Option{&crossover_probability_, kCrossoverProbability, kDCrossoverProbability, 0.9});
-    RegisterOption(Option{&differential_strategy_, kDifferentialStrategy, kDDifferentialStrategy, default_strategy});
+    RegisterOption(Option{&differential_options_.differential_scale, kDifferentialScale, kDDifferentialScale, 0.5});
+    RegisterOption(Option{&differential_options_.crossover_probability, kCrossoverProbability, kDCrossoverProbability, 0.9});
+    RegisterOption(Option{&differential_options_.differential_strategy, kDifferentialStrategy, kDDifferentialStrategy, default_strategy});
 }
 
 void DES::MakeExecuteOptsAvailable() {
@@ -30,48 +30,7 @@ void DES::MakeExecuteOptsAvailable() {
                          kCrossoverProbability, kDifferentialStrategy});
 }
 
-void DES::Test() {
-    for (uint columnIndex = 0; columnIndex < typed_relation_->GetNumColumns(); ++columnIndex) {
-        size_t num_rows = typed_relation_->GetColumnData(columnIndex).GetNumRows();
-        size_t row_index = (columnIndex + 14) % num_rows;
-        model::TypedColumnData const& column = typed_relation_->GetColumnData(columnIndex);
-        const std::byte* value;
-
-        if(!column.IsNullOrEmpty(row_index))
-        {
-            value = column.GetValue(row_index);
-        }
-        int integer_value = model::Type::GetValue<int>(value);
-        std::cout << "column " << columnIndex << " " << "\n";
-        std::cout << "type: " << column.GetType().ToString();
-        std::cout << "example of data at " << row_index << ": ";
-        std::cout <<  integer_value;
-        std::cout << "\n";
-    }
-
-    std::cout << "trying to create a CategoricalAttribute\n";
-    size_t string_column_num = 0;
-    size_t double_column_num = 1;
-    size_t integer_column_num = 2;
-    model::TypedColumnData const& string_column = typed_relation_->GetColumnData(string_column_num);
-    model::TypedColumnData const& double_column = typed_relation_->GetColumnData(double_column_num);
-    model::TypedColumnData const& int_column = typed_relation_->GetColumnData(integer_column_num);
-
-    using namespace model;
-
-    //std::cout << "\ntype operations:";
-    //model::DoubleType double_type;
-    //model::IntType int_type;
-    //std::byte const* value1 = double_type.MakeValue(-3.141);
-    //std::byte const* value2 = int_type.MakeValue(-3);
-
-    //std::byte* Artyom = double_type.Allocate();
-    //double_type.Max(value1, value2, Artyom);
-    //std::cout << "\ncouting Artyom:";
-    //double_type.Free(Artyom);
-}
-
-const FeatureDomains DES::FindFeatureDomains(TypedRelation const* typed_relation) {
+FeatureDomains DES::FindFeatureDomains(TypedRelation const* typed_relation) {
     auto feature_domains = std::vector<std::shared_ptr<ValueRange>>();
     for (size_t i = 0; i < typed_relation->GetNumColumns(); i++) {
         std::shared_ptr<ValueRange> domain = CreateValueRange(typed_relation->GetColumnData(i));
@@ -92,45 +51,36 @@ std::vector<EncodedNAR> DES::GetRandomPopulationInDomains(FeatureDomains domains
     return encodedNARs;
 }
 
-void DES::EvolvePopulation(std::vector<EncodedNAR>& population) {
-    //TODO
+EncodedNAR DES::MutateIndividual(std::vector<EncodedNAR> population, EncodedNAR best_individual, size_t at) {
+    MutationFunction diff_func = EnumToMutationStrategy(differential_options_.differential_strategy);
+    return (*diff_func)(population, best_individual, at, differential_options_);
 }
 
 unsigned long long DES::ExecuteInternal() {
     FeatureDomains feature_domains = FindFeatureDomains(typed_relation_.get());
-    std::vector<EncodedNAR> encodedNARs = GetRandomPopulationInDomains(feature_domains);
-
-    //DEBUG
-    //for(EncodedNAR enc: encodedNARs) {
-    //    std::cout << "NAR\n";
-    //    for(std::shared_ptr<EncodedValueRange> bounds: enc.encoded_feature_ranges)
-    //    {
-    //        switch (bounds->GetTypeId())
-    //        {
-    //        case FeatureTypeId::kCategorical:
-    //        std::shared_ptr<EncodedCategoricalFeatureRange> bndcat = bnd;
-    //            std::cout << ((std::shared_ptr<EncodedCategoricalFeatureRange>)bnd)->value_;
-    //            break;
-    //        
-    //        default:
-    //            break;
-    //        }
-    //    }
-    //    std::cout
-    //}
-    ///DEBUG
-
-    //for (int i = 0; i < num_evaluations_; i++) { //TODO: change num_evaluations type to something unsigned
-    //    EvolvePopulation(encodedNARs);
-    //}
+    std::vector<EncodedNAR> population = GetRandomPopulationInDomains(feature_domains);
+    EncodedNAR best_individual = EncodedNAR(feature_domains, typed_relation_.get());
     
-    for (size_t i = 0; i < encodedNARs.size(); i++) {
-        NAR decoded = encodedNARs[i].Decode(feature_domains);
+    for (int i = 0; i < num_evaluations_; i++) { //TODO: change num_evaluations type to something unsigned
+        EncodedNAR mutant = MutateIndividual(population, best_individual, i % population_size_);
+        mutant.SetQualities(feature_domains, typed_relation_.get());
+        if(mutant.qualities.fitness > population[i % population_size_].qualities.fitness) {
+            population[i % population_size_] = mutant;
+        }
+        if(mutant.qualities.fitness > best_individual.qualities.fitness) {
+            best_individual = mutant;
+        }
+    }
+    
+    for (size_t i = 0; i < population.size(); i++) {
+        NAR decoded = population[i].Decode(feature_domains);
         decoded.SetQualities(typed_relation_.get());
         nar_collection_.emplace_back(decoded);
     }
-
-    Test();
+    auto CompareByFitness  = [](const NAR& a, const NAR& b) -> bool {
+        return a.qualities.fitness > b.qualities.fitness;
+    };
+    std::sort(nar_collection_.begin(), nar_collection_.end(), CompareByFitness);
     return 0;
 }
 

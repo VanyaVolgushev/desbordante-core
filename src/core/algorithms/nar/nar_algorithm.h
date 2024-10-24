@@ -16,7 +16,7 @@ private:
     void RegisterOptions();
 
 protected:
-    std::list<NAR> nar_collection_;
+    std::vector<NAR> nar_collection_;
     std::unique_ptr<TypedRelation> typed_relation_;
     double minsup_;
     double minconf_;
@@ -25,7 +25,7 @@ protected:
     void MakeExecuteOptsAvailable() override;
 
 public:
-    std::list<NAR> const& GetNARList() const noexcept {
+    std::vector<NAR> const& GetNARVector() const noexcept {
         return nar_collection_;
     };
     void ResetState() override;

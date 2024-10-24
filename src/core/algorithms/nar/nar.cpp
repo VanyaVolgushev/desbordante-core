@@ -50,34 +50,17 @@ NARQualities NAR::SetQualities(TypedRelation const* typed_relation) {
         bool row_fits_cons = true;
         for(size_t coli = 0; coli < typed_relation->GetNumColumns(); coli++) {
             const model::TypedColumnData& column = typed_relation->GetColumnData(coli);
-            auto data = column.GetValue(rowi);
-
-            bool ante_contains_feature = ante.find(coli) != ante.end();
-            if(ante_contains_feature) {
-                if(!ante.at(coli)->Includes(data)) {
-                    row_fits_ante = false;
-                    break;
-                }
-                continue;
-            }
-            bool cons_contains_feature = cons.find(coli) != cons.end();
-            if(cons_contains_feature) {
-                if(!cons.at(coli)->Includes(data)) {
-                    row_fits_cons = false;
-                }
-                continue;
-            }
+            auto value = column.GetValue(rowi);
+            row_fits_ante &= AnteFitsValue(coli, value);
+            if(!row_fits_ante) {break;}
+            row_fits_cons &= ConsFitsValue(coli, value);
         }
-        if(row_fits_ante) {
-            num_rows_fit_ante++;
-        }
-        if(row_fits_ante && row_fits_cons) {
-            num_rows_fit_ante_and_cons++;
-        }
+        num_rows_fit_ante += row_fits_ante;
+        num_rows_fit_ante_and_cons += (row_fits_ante && row_fits_cons);
     }
     
     if (num_rows_fit_ante == 0) {
-        result.confidence = 0;
+        result.confidence = 0.0;
     } else {
         result.confidence = num_rows_fit_ante_and_cons / (double)num_rows_fit_ante;
     }
@@ -88,17 +71,16 @@ NARQualities NAR::SetQualities(TypedRelation const* typed_relation) {
     return result;
 }
 
-bool NAR::MapIncludes(std::map<size_t, std::shared_ptr<ValueRange>> map, size_t feature_index,
+bool NAR::MapFitsValue(std::map<size_t, std::shared_ptr<ValueRange>> map, size_t feature_index,
                       std::byte const* value) {
-    for(auto const& iterator: map) {
-        if (iterator.first != feature_index) {
-            continue;
-        }
-        if (iterator.second->Includes(value)) {
-            return true;
-        }
+    bool map_binds_feature = map.find(feature_index) != map.end();
+    if(!map_binds_feature) {
+        return true;
+    } else if (map.at(feature_index)->Includes(value)) {
+        return true;
+    } else {
+        return false;
     }
-    return false;
 }
 
 }  // namespace model

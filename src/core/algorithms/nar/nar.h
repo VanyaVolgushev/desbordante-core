@@ -14,24 +14,30 @@ struct NARQualities {
 };
 
 class NAR {
-public:
     using TypedRelation = model::ColumnLayoutTypedRelationData; 
-    NARQualities qualities;
+public:
+    std::string ToString() const;
+    void SetQualities(TypedRelation const* typed_relation);
+    const model::NARQualities& GetQualities() const;
+    void InsertInAnte(size_t feature_index, std::shared_ptr<ValueRange> range);
+    void InsertInCons(size_t feature_index, std::shared_ptr<ValueRange> range);
 
-    std::map<size_t, std::shared_ptr<ValueRange>> ante = std::map<size_t, std::shared_ptr<ValueRange>>();
-    std::map<size_t, std::shared_ptr<ValueRange>> cons = std::map<size_t, std::shared_ptr<ValueRange>>();
+
+private:
+    NARQualities qualities_;
+    bool qualities_consistent_ = false;
+
+    std::map<size_t, std::shared_ptr<ValueRange>> ante_ = std::map<size_t, std::shared_ptr<ValueRange>>();
+    std::map<size_t, std::shared_ptr<ValueRange>> cons_ = std::map<size_t, std::shared_ptr<ValueRange>>();
 
     bool AnteFitsValue(size_t feature_index, const std::byte* value_of_feature) const {
-        return MapFitsValue(ante, feature_index, value_of_feature);
+        return MapFitsValue(ante_, feature_index, value_of_feature);
     }
 
     bool ConsFitsValue(size_t feature_index, const std::byte* value_of_feature) const {
-        return MapFitsValue(cons, feature_index, value_of_feature);
+        return MapFitsValue(cons_, feature_index, value_of_feature);
     }
 
-    NARQualities SetQualities(TypedRelation const* typed_relation);
-    std::string ToString() const;
-private:
     //TODO: name std::map<size_t, std::shared_ptr<ValueRange>> something
     //std::tuple<bool, bool> 
     static bool MapFitsValue(std::map<size_t, std::shared_ptr<ValueRange>> map, size_t feature_index, const std::byte* value);

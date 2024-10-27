@@ -45,7 +45,7 @@ std::vector<EncodedNAR> DES::GetRandomPopulationInDomains(FeatureDomains domains
         encodedNARs.emplace_back(EncodedNAR(domains, typed_relation_.get()));
     }
     auto CompareByFitness  = [](const EncodedNAR& a, const EncodedNAR& b) -> bool {
-        return a.qualities.fitness > b.qualities.fitness;
+        return a.GetQualities().fitness > b.GetQualities().fitness;
     };
     std::sort(encodedNARs.begin(), encodedNARs.end(), CompareByFitness);
     return encodedNARs;
@@ -62,23 +62,22 @@ unsigned long long DES::ExecuteInternal() {
     EncodedNAR best_individual = EncodedNAR(feature_domains, typed_relation_.get());
     
     for (int i = 0; i < num_evaluations_; i++) { //TODO: change num_evaluations type to something unsigned
-        EncodedNAR mutant = MutateIndividual(population, best_individual, i % population_size_);
-        mutant.SetQualities(feature_domains, typed_relation_.get());
-        if(mutant.qualities.fitness > population[i % population_size_].qualities.fitness) {
-            population[i % population_size_] = mutant;
-        }
-        if(mutant.qualities.fitness > best_individual.qualities.fitness) {
-            best_individual = mutant;
+        size_t candidate_i = i % population_size_;
+        EncodedNAR mutant = MutateIndividual(population, best_individual, candidate_i);
+        NAR mutant_decoded = mutant.SetQualities(feature_domains, typed_relation_.get());
+        double candidate_fitness = population[candidate_i].GetQualities().fitness;
+
+        if(mutant.GetQualities().fitness > candidate_fitness) {
+            population[candidate_i] = mutant;
+            nar_collection_.emplace_back(mutant_decoded);
+            if(mutant.GetQualities().fitness > best_individual.GetQualities().fitness) {
+                best_individual = mutant;
+            }
         }
     }
-    
-    for (size_t i = 0; i < population.size(); i++) {
-        NAR decoded = population[i].Decode(feature_domains);
-        decoded.SetQualities(typed_relation_.get());
-        nar_collection_.emplace_back(decoded);
-    }
+
     auto CompareByFitness  = [](const NAR& a, const NAR& b) -> bool {
-        return a.qualities.fitness > b.qualities.fitness;
+        return a.GetQualities().fitness > b.GetQualities().fitness;
     };
     std::sort(nar_collection_.begin(), nar_collection_.end(), CompareByFitness);
     return 0;

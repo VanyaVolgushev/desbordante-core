@@ -28,6 +28,10 @@ protected:
     unsigned long long ExecuteInternal() override;
 
 public:
+    //DEBUG
+    TypedRelation const* GetTypedRelation() {
+        return typed_relation_.get();
+    }
     DES();
 };
 

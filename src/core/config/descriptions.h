@@ -6,6 +6,7 @@
 #include "algorithms/cfd/enums.h"
 #include "algorithms/fd/tane/enums.h"
 #include "algorithms/metric/enums.h"
+#include "algorithms/nar/des/enums.h"
 #include "util/enum_to_available_values.h"
 
 namespace config::descriptions {
@@ -21,6 +22,9 @@ std::string const kDPfdErrorMeasureString =
         "PFD error measure to use\n" + util::EnumToAvailableValues<algos::PfdErrorMeasure>();
 std::string const kDAfdErrorMeasureString =
         "AFD error measure to use\n" + util::EnumToAvailableValues<algos::AfdErrorMeasure>();
+std::string const kDDifferentialStrategyString =
+        "mutation strategy to use\n" +
+        util::EnumToAvailableValues<algos::des::DifferentialStrategy>();
 }  // namespace details
 
 constexpr auto kDTable = "table processed by the algorithm";
@@ -45,6 +49,13 @@ constexpr auto kDInputFormat = "format of the input dataset for AR mining\n[sing
 constexpr auto kDTIdColumnIndex = "index of the column where a TID is stored";
 constexpr auto kDItemColumnIndex = "index of the column where an item name is stored";
 constexpr auto kDFirstColumnTId = "indicates that the first column contains the transaction IDs";
+constexpr auto kDPopulationSize = "the number of individuals in the population at any given time";
+constexpr auto kDMaxFitnessEvaluations =
+        "the algorithm will be stopped after calculating the fitness "
+        "function this many times";
+constexpr auto kDDifferentialScale = "the magnitude of mutations";
+constexpr auto kDCrossoverProbability = "probability of a gene getting mutated in a new individual";
+auto const kDDifferentialStrategy = details::kDDifferentialStrategyString.c_str();
 auto const kDMetric = details::kDMetricString.c_str();
 constexpr auto kDLhsIndices = "LHS column indices";
 constexpr auto kDRhsIndices = "RHS column indices";

@@ -9,77 +9,71 @@ namespace model {
 
 class ValueRange {
 public:
-    virtual TypeId GetTypeId() const = 0;
+    TypeId GetTypeId() const;
     virtual bool Includes(std::byte const* value) const = 0;
     virtual std::string ToString() const = 0;
 
 protected:
+    std::unique_ptr<model::Type> type_ = nullptr;
     ValueRange() {};
     virtual ~ValueRange() = default;
 };
 
-class StringValueRange : public ValueRange {
-public:
-    std::vector<String> domain;
-    explicit StringValueRange(TypedColumnData const& column);
+class CategoricalValueRange : public ValueRange {
+    std::vector<std::byte const*> domain_;
 
-    StringValueRange(String value) : domain() {
-        domain.emplace_back(value);
+public:
+    explicit CategoricalValueRange(TypedColumnData const& column);
+
+    CategoricalValueRange(std::byte const* data) : domain_() {
+        domain_.emplace_back(data);
+        type_ = std::make_unique<Type>(TypeId::kString);
+    }
+
+    bool Includes(std::byte const* value) const override {
+        String pattern = Type::GetValue<String>(value);
+        auto found =
+                std::find_if(domain_.begin(), domain_.end(), [pattern](std::byte const*& data) {
+                    return Type::GetValue<String>(data) == pattern;
+                });
+
+        return found != domain_.end();
+    }
+
+    std::string ToString() const override;
+
+    ~CategoricalValueRange() {
+        for (auto v : domain_) type_->Free(v);
+    }
+};
+
+class NumericalValueRange : public ValueRange {
+public:
+    std::byte const* lower_bound_;
+    std::byte const* upper_bound_;
+    explicit NumericalValueRange(TypedColumnData const& column);
+
+    NumericalValueRange(std::byte const* lower_bound, std::byte const* upper_bound,
+                        model::Type const* type)
+        : lower_bound_(lower_bound), upper_bound_(upper_bound) {
+        this->type_ = type->CloneType();
     };
 
-    TypeId GetTypeId() const override {
-        return TypeId::kString;
-    }
-
     bool Includes(std::byte const* value) const override {
-        String svalue = Type::GetValue<String>(value);
-        return std::find(domain.begin(), domain.end(), svalue) != domain.end();
+        auto res_with_lower = type_->Compare(value, lower_bound_);
+        auto res_with_upper = type_->Compare(value, upper_bound_);
+        return (res_with_lower == CompareResult::kGreater ||
+                res_with_lower == CompareResult::kEqual) &&
+                (res_with_upper == CompareResult::kLess ||
+                res_with_upper == CompareResult::kEqual);
     }
 
     std::string ToString() const override;
-    ~StringValueRange() = default;
-};
 
-class DoubleValueRange : public ValueRange {
-public:
-    Double lower_bound;
-    Double upper_bound;
-    explicit DoubleValueRange(TypedColumnData const& column);
-    DoubleValueRange(Double lower_bound, Double upper_bound)
-        : lower_bound(lower_bound), upper_bound(upper_bound) {};
-
-    TypeId GetTypeId() const override {
-        return TypeId::kDouble;
+    ~NumericalValueRange() {
+        type_->Free(lower_bound_);
+        type_->Free(upper_bound_);
     }
-
-    bool Includes(std::byte const* value) const override {
-        Double dvalue = Type::GetValue<Double>(value);
-        return dvalue >= lower_bound && dvalue <= upper_bound;
-    }
-
-    std::string ToString() const override;
-    ~DoubleValueRange() = default;
-};
-
-class IntValueRange : public ValueRange {
-public:
-    Int lower_bound;
-    Int upper_bound;
-
-    TypeId GetTypeId() const override {
-        return TypeId::kInt;
-    }
-
-    bool Includes(std::byte const* value) const override {
-        Int ivalue = Type::GetValue<Int>(value);
-        return ivalue >= lower_bound && ivalue <= upper_bound;
-    }
-
-    std::string ToString() const override;
-    explicit IntValueRange(TypedColumnData const& column);
-    IntValueRange(Int lower_bound, Int upper_bound)
-        : lower_bound(lower_bound), upper_bound(upper_bound) {};
-    ~IntValueRange() = default;
 };
 
 std::shared_ptr<ValueRange> CreateValueRange(TypedColumnData const& column);

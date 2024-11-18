@@ -55,7 +55,6 @@ NARQualities CalcQualities(size_t num_rows_fit_ante, size_t num_rows_fit_ante_an
     return result;
 }
 
-// TODO: this function is way too big and cluttered
 void NAR::SetQualities(TypedRelation const* typed_relation) {
     if (ante_.size() == 0 || cons_.size() == 0) {
         qualities_.fitness = 0.0;

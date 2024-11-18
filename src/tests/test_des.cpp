@@ -28,9 +28,13 @@ protected:
 };
 
 TEST_F(DESTest, LaunchTest) {
-    auto algorithm = CreateAlgorithmInstance(kAbalone, 0.5, 0.6, 100, 100, 0.9, 0.5,
+    auto algorithm = CreateAlgorithmInstance(kDogBreads, 0.5, 0.6, 100, 1000, 0.9, 0.5,
                                              algos::des::DifferentialStrategy::rand1Bin);
     algorithm->Execute();
+    for (auto i: algorithm->GetNARVector()) {
+        std::cout << "\n";
+        std::cout << i.ToString();
+    }
     SUCCEED();
 }
 

@@ -2,27 +2,27 @@
 
 namespace model {
 
-StringValueRange::StringValueRange(model::TypedColumnData const& column) {
-    domain = std::vector<std::string>();
+CategoricalValueRange::CategoricalValueRange(model::TypedColumnData const& column) {
+    domain_ = std::vector<std::string>();
     for (size_t row_index = 0; row_index < column.GetNumRows(); row_index++) {
         std::byte const* value = column.GetValue(row_index);
         std::string string_value = model::Type::GetValue<std::string>(value);
         bool first_occurrence =
-                std::find(domain.begin(), domain.end(), string_value) == domain.end();
+                std::find(domain_.begin(), domain_.end(), string_value) == domain_.end();
         if (first_occurrence) {
-            domain.emplace_back(string_value);
+            domain_.emplace_back(string_value);
         }
     }
 }
 
-std::string StringValueRange::ToString() const {
+std::string CategoricalValueRange::ToString() const {
     std::string result;
     result += "[";
-    if (domain.size() > 0) {
-        result += domain[0];
+    if (domain_.size() > 0) {
+        result += domain_[0];
     }
-    for (size_t i = 1; i < domain.size(); i++) {
-        result += (", " + domain[i]);
+    for (size_t i = 1; i < domain_.size(); i++) {
+        result += (", " + domain_[i]);
     }
     result += "]";
     return result;
@@ -58,7 +58,7 @@ IntValueRange::IntValueRange(model::TypedColumnData const& column) {
     }
 }
 
-DoubleValueRange::DoubleValueRange(model::TypedColumnData const& column) {
+NumericalValueRange::NumericalValueRange(model::TypedColumnData const& column) {
     bool initialized = false;
     for (size_t row_index = 0; row_index < column.GetNumRows(); row_index++) {
         std::byte const* value = column.GetValue(row_index);
@@ -80,7 +80,7 @@ DoubleValueRange::DoubleValueRange(model::TypedColumnData const& column) {
     }
 }
 
-std::string DoubleValueRange::ToString() const {
+std::string NumericalValueRange::ToString() const {
     std::string result;
     result += "[";
     result += std::to_string(lower_bound);
@@ -93,13 +93,10 @@ std::string DoubleValueRange::ToString() const {
 std::shared_ptr<ValueRange> CreateValueRange(model::TypedColumnData const& column) {
     switch (column.GetTypeId()) {
         case TypeId::kInt:
-            return std::make_shared<IntValueRange>(column);
         case TypeId::kDouble:
-            return std::make_shared<DoubleValueRange>(column);
+            return std::make_shared<NumericalValueRange>(column);
         case TypeId::kString:
-            return std::make_shared<StringValueRange>(column);
-        case TypeId::kMixed:
-            return std::make_shared<StringValueRange>(column);
+            return std::make_shared<CategoricalValueRange>(column);
         default:
             throw std::invalid_argument(std::string("Column has invalid type_id in function: ") +
                                         __func__);

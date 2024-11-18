@@ -45,4 +45,14 @@ private:
                              size_t feature_index, std::byte const* value);
 };
 
+
+/*
+struct RawNAR {
+    struct RawAttributeRange {
+        std::unique_ptr<model::ValueRange> range;
+        size_t column_index;
+    }
+    std::list<>
+}
+*/
 }  // namespace model

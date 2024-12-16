@@ -15,8 +15,7 @@ std::vector<size_t> GetRandIndices(size_t except_index, size_t population, size_
         indices.insert(random_index);
     }
     indices.erase(except_index);
-    std::vector<size_t> ind_vec = {indices.begin(), indices.end()};
-    return ind_vec;
+    return {indices.begin(), indices.end()};
 }
 
 EncodedNAR Rand1Bin(std::vector<EncodedNAR> const& population, size_t candidate_index,

@@ -53,16 +53,14 @@ EncodedValueRange::DecodeTypedValueRange<model::String, model::StringValueRange>
     using namespace model;
     auto string_domain_ptr = std::static_pointer_cast<StringValueRange>(domain_ptr);
     std::vector<String> const& string_domain = string_domain_ptr->domain;
+    if (string_domain.empty()) {
+        throw std::logic_error("String domain is empty, cannot decode value range.");
+    }
     size_t span = string_domain.size();
     // upper_bound is not used, resulting NARs bind categorical values with a single
     // value.
-    String result;
-    if (bound1 == 1.0) {
-        result = string_domain.back();
-    } else {
-        result = string_domain[span * bound1];
-    }
-    return std::make_shared<StringValueRange>(result);
+    size_t index = std::clamp(bound1 * span, 0.0, span - 1.0);
+    return std::make_shared<StringValueRange>(string_domain[index]);
 }
 
 std::shared_ptr<model::ValueRange> EncodedValueRange::Decode(

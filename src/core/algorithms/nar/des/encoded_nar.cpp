@@ -60,7 +60,7 @@ NAR EncodedNAR::Decode(FeatureDomains const& domains, RNG& rng) const {
     auto compare_by_permutation = [this](size_t a, size_t b) {
         return encoded_value_ranges_[a].permutation > encoded_value_ranges_[b].permutation;
     };
-    std::sort(feature_order.begin(), feature_order.end(), compare_by_permutation);
+    std::ranges::sort(feature_order, compare_by_permutation);
 
     size_t implication_sign_after = implication_sign_pos_ * (encoded_value_ranges_.size() - 1);
     size_t handling_feat_num = 0;

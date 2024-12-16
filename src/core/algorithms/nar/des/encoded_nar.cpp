@@ -64,21 +64,21 @@ NAR EncodedNAR::Decode(FeatureDomains const& domains, RNG& rng) const {
 
     // Implication sign comes after EncodedValueRange with this index.
     size_t implication_sign_after = implication_sign_pos_ * (encoded_value_ranges_.size() - 1);
-    size_t handling_feat_num = 0;
+    size_t processed_features = 0;
     for (size_t feature_index : feature_order) {
         EncodedValueRange const& encoded_feature = encoded_value_ranges_[feature_index];
         if (encoded_feature.threshold < rng.Next()) {
-            ++handling_feat_num;
+            ++processed_features;
             continue;
         }
         auto const& domain = domains.at(feature_index);
         auto const& decoded = encoded_value_ranges_[feature_index].Decode(domain);
-        if (handling_feat_num > implication_sign_after) {
+        if (processed_features > implication_sign_after) {
             resulting_nar.InsertInCons(feature_index, decoded);
         } else {
             resulting_nar.InsertInAnte(feature_index, decoded);
         }
-        ++handling_feat_num;
+        ++processed_features;
     }
     return resulting_nar;
 }

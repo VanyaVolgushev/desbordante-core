@@ -72,7 +72,7 @@ NAR EncodedNAR::Decode(FeatureDomains const& domains, RNG& rng) const {
             continue;
         }
         auto const& domain = domains.at(feature_index);
-        auto const& decoded = encoded_value_ranges_[feature_index].Decode(domain);
+        auto const& decoded = encoded_feature.Decode(domain);
         if (processed_features > implication_sign_after) {
             resulting_nar.InsertInCons(feature_index, decoded);
         } else {

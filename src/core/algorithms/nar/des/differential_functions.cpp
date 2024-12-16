@@ -21,14 +21,10 @@ std::vector<size_t> GetRandIndices(size_t except_index, size_t population, size_
 EncodedNAR Rand1Bin(std::vector<EncodedNAR> const& population, size_t candidate_index,
                     DifferentialOptions options, RNG& rng) {
     auto sample_indices = GetRandIndices(candidate_index, population.size(), 3, rng);
-    size_t sample_index1 = sample_indices[0];
-    size_t sample_index2 = sample_indices[1];
-    size_t sample_index3 = sample_indices[2];
-
     auto new_individual = population[candidate_index];
-    auto sample1 = population[sample_index1];
-    auto sample2 = population[sample_index2];
-    auto sample3 = population[sample_index3];
+    auto sample1 = population[sample_indices[0]];
+    auto sample2 = population[sample_indices[1]];
+    auto sample3 = population[sample_indices[2]];
 
     for (size_t i = 0; i < new_individual.VectorSize(); ++i) {
         if (rng.Next() < options.crossover_probability) {

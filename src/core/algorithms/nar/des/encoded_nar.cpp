@@ -62,6 +62,7 @@ NAR EncodedNAR::Decode(FeatureDomains const& domains, RNG& rng) const {
     };
     std::ranges::sort(feature_order, compare_by_permutation);
 
+    // Implication sign comes after EncodedValueRange with this index.
     size_t implication_sign_after = implication_sign_pos_ * (encoded_value_ranges_.size() - 1);
     size_t handling_feat_num = 0;
     for (size_t feature_index : feature_order) {

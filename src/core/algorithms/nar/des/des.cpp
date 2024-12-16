@@ -43,8 +43,8 @@ FeatureDomains DES::FindFeatureDomains(TypedRelation const* typed_relation) {
     std::vector<std::shared_ptr<ValueRange>> feature_domains;
     feature_domains.reserve(typed_relation->GetNumColumns());
     for (size_t i = 0; i < typed_relation->GetNumColumns(); ++i) {
-        std::shared_ptr<ValueRange> domain = CreateValueRange(typed_relation->GetColumnData(i));
-        feature_domains.push_back(std::move(domain));
+        auto const& column = typed_relation->GetColumnData(i);
+        feature_domains.push_back(CreateValueRange(column));
     }
     return feature_domains;
 }

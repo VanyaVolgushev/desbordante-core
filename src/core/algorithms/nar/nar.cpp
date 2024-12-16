@@ -40,7 +40,7 @@ NARQualities CalcQualities(size_t num_rows_fit_ante, size_t num_rows_fit_ante_an
 }
 
 void NAR::SetQualities(TypedRelation const* typed_relation) {
-    if (ante_.size() == 0 || cons_.size() == 0) {
+    if (ante_.empty() || cons_.empty()) {
         qualities_ = {0.0, 0.0, 0.0};
         qualities_consistent_ = true;
         return;

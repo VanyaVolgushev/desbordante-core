@@ -19,7 +19,7 @@ std::vector<size_t> GetRandIndices(size_t except_index, size_t population, size_
 }
 
 EncodedNAR Rand1Bin(std::vector<EncodedNAR> const& population, size_t candidate_index,
-                    DifferentialOptions options, RNG& rng) {
+                    DifferentialOptions const& options, RNG& rng) {
     auto sample_indices = GetRandIndices(candidate_index, population.size(), 3, rng);
     auto new_individual = population[candidate_index];
     auto sample1 = population[sample_indices[0]];

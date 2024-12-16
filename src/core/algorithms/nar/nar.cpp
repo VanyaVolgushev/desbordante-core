@@ -1,23 +1,26 @@
 #include "nar.h"
 
 namespace model {
+
 std::string NAR::ToString() const {
+    auto map_to_string = [](auto const& map) {
+        std::ostringstream os;
+        bool first = true;
+        for (auto const& [key, range] : map) {
+            if (!first) {
+                os << ", ";
+            }
+            os << key << ": " << range->ToString();
+            first = false;
+        }
+        return os.str();
+    };
+
     std::ostringstream result;
     result << qualities_.fitness << " {";
-    for (auto it{ante_.begin()}; it != ante_.end(); ++it) {
-        if (it != ante_.begin()) {
-            result << ", ";
-        }
-        result << it->first << ": " << it->second->ToString();
-    }
-    result << "} ===> {";
-    for (auto it{cons_.begin()}; it != cons_.end(); ++it) {
-        if (it != cons_.begin()) {
-            result << ", ";
-        }
-        result << it->first << ": " << it->second->ToString();
-    }
+    result << map_to_string(ante_) << "} ===> {" << map_to_string(cons_);
     result << "} s: " << qualities_.support << " c: " << qualities_.confidence;
+    return result.str();
     return result.str();
 }
 

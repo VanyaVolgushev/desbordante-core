@@ -49,18 +49,18 @@ std::shared_ptr<RangeT> EncodedValueRange::DecodeTypedValueRange(
 template <>
 std::shared_ptr<model::StringValueRange>
 EncodedValueRange::DecodeTypedValueRange<model::String, model::StringValueRange>(
-        std::shared_ptr<model::ValueRange> const& domain) const {
+        std::shared_ptr<model::ValueRange> const& domain_ptr) const {
     using namespace model;
-    auto string_domain = std::static_pointer_cast<StringValueRange>(domain);
-    std::vector<String> string_vector = string_domain->domain;
-    size_t span = string_vector.size();
+    auto string_domain_ptr = std::static_pointer_cast<StringValueRange>(domain_ptr);
+    std::vector<String> const& string_domain = string_domain_ptr->domain;
+    size_t span = string_domain.size();
     // upper_bound is not used, resulting NARs bind categorical values with a single
     // value.
     String result;
     if (bound1 == 1.0) {
-        result = string_vector.back();
+        result = string_domain.back();
     } else {
-        result = string_vector[span * bound1];
+        result = string_domain[span * bound1];
     }
     return std::make_shared<StringValueRange>(result);
 }

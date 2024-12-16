@@ -83,20 +83,19 @@ NAR EncodedNAR::Decode(FeatureDomains const& domains, RNG& rng) const {
     return resulting_nar;
 }
 
-EncodedNAR::EncodedNAR(FeatureDomains& domains, TypedRelation const* typed_relation, RNG& rng) {
+EncodedNAR::EncodedNAR(FeatureDomains& domains, TypedRelation const* typed_relation, RNG& rng)
+    : implication_sign_pos_(rng.Next()) {
     size_t feature_count = domains.size();
     encoded_value_ranges_.reserve(feature_count);
     std::generate_n(std::back_inserter(encoded_value_ranges_), feature_count,
                     [&rng]() { return EncodedValueRange(rng); });
-    implication_sign_pos_ = rng.Next();
     SetQualities(domains, typed_relation, rng);
 }
 
-EncodedNAR::EncodedNAR(size_t feature_count, RNG& rng) {
+EncodedNAR::EncodedNAR(size_t feature_count, RNG& rng) : implication_sign_pos_(rng.Next()) {
     encoded_value_ranges_.reserve(feature_count);
     std::generate_n(std::back_inserter(encoded_value_ranges_), feature_count,
                     [&rng]() { return EncodedValueRange(rng); });
-    implication_sign_pos_ = rng.Next();
 }
 
 }  // namespace algos::des

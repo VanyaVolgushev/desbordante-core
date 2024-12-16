@@ -19,11 +19,11 @@ public:
     template <typename T, typename RangeT>
     std::shared_ptr<RangeT> DecodeTypedValueRange(
             std::shared_ptr<model::ValueRange> const& domain) const;
-            
+
     std::shared_ptr<model::ValueRange> Decode(
             std::shared_ptr<model::ValueRange> const& domain) const;
 
-    EncodedValueRange(RNG& rng);
+    explicit EncodedValueRange(RNG& rng);
 };
 
 }  // namespace algos::des

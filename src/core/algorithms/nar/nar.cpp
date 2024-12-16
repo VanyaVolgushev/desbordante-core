@@ -49,12 +49,12 @@ void NAR::SetQualities(TypedRelation const* typed_relation) {
     size_t num_rows_fit_ante_and_cons = 0;
     size_t num_rows = typed_relation->GetNumRows();
     size_t num_columns = typed_relation->GetNumColumns();
-    for (size_t rowi = 0; rowi < typed_relation->GetNumRows(); ++rowi) {
+    for (size_t rowi = 0; rowi < num_rows; ++rowi) {
         bool row_fits_ante = true;
         bool row_fits_cons = true;
         for (size_t coli = 0; coli < num_columns; ++coli) {
             model::TypedColumnData const& column = typed_relation->GetColumnData(coli);
-            auto value = column.GetValue(rowi);
+            std::byte const* value = column.GetValue(rowi);
             if (row_fits_ante) {
                 row_fits_ante = AnteFitsValue(coli, value);
                 row_fits_cons &= ConsFitsValue(coli, value);
@@ -94,10 +94,11 @@ void NAR::InsertInCons(size_t feature_index, std::shared_ptr<ValueRange> range) 
 
 bool NAR::MapFitsValue(std::map<size_t, std::shared_ptr<ValueRange>> const& map,
                        size_t feature_index, std::byte const* value) {
-    if (!map.contains(feature_index)) {
+    auto it = map.find(feature_index);
+    if (it == map.end()) {
         return true;
     }
-    return map.at(feature_index)->Includes(value);
+    return it->second->Includes(value);
 }
 
 }  // namespace model

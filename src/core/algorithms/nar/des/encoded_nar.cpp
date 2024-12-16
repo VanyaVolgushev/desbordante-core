@@ -85,17 +85,17 @@ NAR EncodedNAR::Decode(FeatureDomains const& domains, RNG& rng) const {
 
 EncodedNAR::EncodedNAR(FeatureDomains& domains, TypedRelation const* typed_relation, RNG& rng) {
     size_t feature_count = domains.size();
-    for (size_t feature_index = 0; feature_index < feature_count; ++feature_index) {
-        encoded_value_ranges_.emplace_back(rng);
-    }
+    encoded_value_ranges_.reserve(feature_count);
+    std::generate_n(std::back_inserter(encoded_value_ranges_), feature_count,
+                    [&rng]() { return EncodedValueRange(rng); });
     implication_sign_pos_ = rng.Next();
     SetQualities(domains, typed_relation, rng);
 }
 
 EncodedNAR::EncodedNAR(size_t feature_count, RNG& rng) {
-    for (size_t feature_index = 0; feature_index < feature_count; ++feature_index) {
-        encoded_value_ranges_.emplace_back(rng);
-    }
+    encoded_value_ranges_.reserve(feature_count);
+    std::generate_n(std::back_inserter(encoded_value_ranges_), feature_count,
+                    [&rng]() { return EncodedValueRange(rng); });
     implication_sign_pos_ = rng.Next();
 }
 

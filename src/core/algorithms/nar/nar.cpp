@@ -3,7 +3,7 @@
 namespace model {
 std::string NAR::ToString() const {
     std::ostringstream result;
-    result << std::to_string(qualities_.fitness) << " {";
+    result << qualities_.fitness << " {";
     for (auto it{ante_.begin()}; it != ante_.end(); ++it) {
         if (it != ante_.begin()) {
             result << ", ";

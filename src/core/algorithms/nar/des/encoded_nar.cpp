@@ -53,7 +53,7 @@ model::NARQualities const& EncodedNAR::GetQualities() const {
     return qualities_;
 }
 
-NAR EncodedNAR::Decode(FeatureDomains const& domains, RNG& rng) const {
+NAR EncodedNAR::Decode(FeatureDomains& domains, RNG& rng) const {
     NAR resulting_nar;
     std::vector<size_t> feature_order(encoded_value_ranges_.size());
     std::iota(std::begin(feature_order), std::end(feature_order), 0);

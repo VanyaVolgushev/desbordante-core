@@ -29,12 +29,12 @@ NARQualities CalcQualities(size_t num_rows_fit_ante, size_t num_rows_fit_ante_an
     if (num_rows_fit_ante == 0) {
         return {0.0, 0.0, 0.0};
     }
-    double support = num_rows_fit_ante_and_cons / static_cast<double>(num_rows);
+    double support = static_cast<double>(num_rows_fit_ante_and_cons) / num_rows;
     if (support == 0.0) {
         return {0.0, 0.0, 0.0};
     }
-    double confidence = num_rows_fit_ante_and_cons / static_cast<double>(num_rows_fit_ante);
-    double inclusion = included_features / static_cast<double>(feature_count);
+    double confidence = static_cast<double>(num_rows_fit_ante_and_cons) / num_rows_fit_ante;
+    double inclusion = static_cast<double>(included_features) / feature_count;
     double fitness = (confidence + support + inclusion) / 3.0;
     return {fitness, support, confidence};
 }

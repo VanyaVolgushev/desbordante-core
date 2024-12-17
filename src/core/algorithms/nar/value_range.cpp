@@ -7,7 +7,7 @@ StringValueRange::StringValueRange(TypedColumnData const& column) {
         std::byte const* value = column.GetValue(row_index);
         std::string string_value = Type::GetValue<std::string>(value);
         bool first_occurrence =
-                std::find(domain.begin(), domain.end(), string_value) == domain.end();
+                std::ranges::find(domain, string_value) == domain.end();
         if (first_occurrence) {
             domain.push_back(std::move(string_value));
         }

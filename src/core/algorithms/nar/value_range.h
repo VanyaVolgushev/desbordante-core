@@ -32,7 +32,7 @@ public:
 
     bool Includes(std::byte const* value) const override {
         String const& svalue = Type::GetValue<String>(value);
-        return std::find(domain.begin(), domain.end(), svalue) != domain.end();
+        return std::ranges::find(domain, svalue) != domain.end();
     }
 
     std::string ToString() const override;

@@ -88,7 +88,7 @@ unsigned long long DES::ExecuteInternal() {
     auto compare_by_fitness = [](const NAR& a, const NAR& b) -> bool {
         return a.GetQualities().fitness > b.GetQualities().fitness;
     };
-    std::sort(nar_collection_.begin(), nar_collection_.end(), compare_by_fitness);
+    std::ranges::sort(nar_collection_, compare_by_fitness);
     return 0;
 }
 

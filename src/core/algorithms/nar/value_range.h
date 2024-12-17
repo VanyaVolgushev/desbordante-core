@@ -40,23 +40,11 @@ struct NumericValueRange : public ValueRange {
     T upper_bound{};
 
     explicit NumericValueRange(TypedColumnData const& column) {
-        bool initialized = false;
-        for (size_t row_index = 0; row_index < column.GetNumRows(); ++row_index) {
-            std::byte const* value = column.GetValue(row_index);
-            T numeric_value = Type::GetValue<T>(value);
-            if (!initialized) {
-                lower_bound = numeric_value;
-                upper_bound = numeric_value;
-                initialized = true;
-            } else {
-                if (numeric_value < lower_bound) {
-                    lower_bound = numeric_value;
-                }
-                if (numeric_value > upper_bound) {
-                    upper_bound = numeric_value;
-                }
-            }
-        }
+        auto [min_ptr, max_ptr] = std::ranges::minmax(
+                column.GetData(), {},
+                [](std::byte const* value) { return Type::GetValue<T>(value); });
+        lower_bound = Type::GetValue<T>(min_ptr);
+        upper_bound = Type::GetValue<T>(max_ptr);
     }
 
     explicit NumericValueRange(T lower_bound, T upper_bound)

@@ -10,12 +10,12 @@ namespace model {
 class ValueRange {
 protected:
     ValueRange() = default;
-    virtual ~ValueRange() = default;
 
 public:
     virtual TypeId GetTypeId() const = 0;
     virtual bool Includes(std::byte const* value) const = 0;
     virtual std::string ToString() const = 0;
+    virtual ~ValueRange() = 0;
 };
 
 class StringValueRange : public ValueRange {

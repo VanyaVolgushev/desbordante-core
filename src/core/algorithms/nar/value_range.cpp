@@ -6,8 +6,7 @@ StringValueRange::StringValueRange(TypedColumnData const& column) {
     for (size_t row_index = 0; row_index < column.GetNumRows(); ++row_index) {
         std::byte const* value = column.GetValue(row_index);
         std::string string_value = Type::GetValue<std::string>(value);
-        bool first_occurrence =
-                std::ranges::find(domain, string_value) == domain.end();
+        bool first_occurrence = std::ranges::find(domain, string_value) == domain.end();
         if (first_occurrence) {
             domain.push_back(std::move(string_value));
         }
@@ -41,5 +40,7 @@ std::string StringValueRange::ToString() const {
     result << "]";
     return result.str();
 }
+
+ValueRange::~ValueRange() {}
 
 }  // namespace model

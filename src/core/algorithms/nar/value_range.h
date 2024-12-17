@@ -68,9 +68,9 @@ struct NumericValueRange : public ValueRange {
     }
 
     TypeId GetTypeId() const override {
-        if (std::is_same<T, Double>::value) {
+        if constexpr (std::is_same_v<T, Double>) {
             return TypeId::kDouble;
-        } else if (std::is_same<T, Int>::value) {
+        } else if constexpr (std::is_same_v<T, Int>) {
             return TypeId::kInt;
         }
         throw std::logic_error("No TypeId corresponding to NumericValueRange's template type.");

@@ -25,6 +25,16 @@ protected:
         return algos::CreateAndLoadAlgorithm<algos::des::DES>(
                 GetParamMap(std::forward<Args>(args)...));
     }
+
+    static std::vector<std::string> ExtractFitnessValues(
+            std::vector<algos::des::NAR> const& nar_vector) {
+        std::vector<std::string> fitness_values;
+        fitness_values.reserve(nar_vector.size());
+        for (auto const& nar : nar_vector) {
+            fitness_values.push_back(std::to_string(nar.GetQualities().fitness));
+        }
+        return fitness_values;
+    }
 };
 
 TEST_F(DESTest, LaunchTest) {
@@ -32,9 +42,7 @@ TEST_F(DESTest, LaunchTest) {
                                              algos::des::DifferentialStrategy::rand1Bin);
     algorithm->Execute();
     std::vector<std::string> result;
-    for (auto i : algorithm->GetNARVector()) {
-        result.push_back(std::to_string(i.GetQualities().fitness));
-    }
+    auto result = ExtractFitnessValues(algorithm->GetNARVector());
     std::vector<std::string> expected = {"0.634851", "0.566887", "0.549872", "0.520035",
                                          "0.518598", "0.481561", "0.460124", "0.407567",
                                          "0.333972", "0.313191", "0.274753", "0.190558",

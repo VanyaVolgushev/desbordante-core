@@ -18,8 +18,7 @@ public:
     virtual ~ValueRange() = 0;
 };
 
-class StringValueRange : public ValueRange {
-public:
+struct StringValueRange : public ValueRange {
     std::vector<String> domain{};
 
     explicit StringValueRange(TypedColumnData const& column);
@@ -36,8 +35,7 @@ public:
 };
 
 template <typename T>
-class NumericValueRange : public ValueRange {
-public:
+struct NumericValueRange : public ValueRange {
     T lower_bound{};
     T upper_bound{};
 

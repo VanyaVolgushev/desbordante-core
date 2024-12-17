@@ -9,7 +9,7 @@ namespace model {
 
 class ValueRange {
 protected:
-    ValueRange() {};
+    ValueRange() = default;
     virtual ~ValueRange() = default;
 
 public:

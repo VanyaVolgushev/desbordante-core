@@ -5,11 +5,11 @@ namespace model {
 ValueRange::~ValueRange() {}
 
 StringValueRange::StringValueRange(TypedColumnData const& column) {
+    std::unordered_set<std::string> unique_values;
     for (size_t row_index = 0; row_index < column.GetNumRows(); ++row_index) {
         std::byte const* value = column.GetValue(row_index);
-        std::string string_value = Type::GetValue<std::string>(value);
-        bool first_occurrence = std::ranges::find(domain, string_value) == domain.end();
-        if (first_occurrence) {
+        auto string_value = Type::GetValue<std::string>(value);
+        if (unique_values.insert(string_value).second) {
             domain.push_back(std::move(string_value));
         }
     }

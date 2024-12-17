@@ -30,10 +30,7 @@ public:
         return TypeId::kString;
     }
 
-    bool Includes(std::byte const* value) const override {
-        String const& svalue = Type::GetValue<String>(value);
-        return std::ranges::find(domain, svalue) != domain.end();
-    }
+    bool Includes(std::byte const* value) const override;
 
     std::string ToString() const override;
 };

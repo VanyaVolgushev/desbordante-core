@@ -36,7 +36,6 @@ public:
     }
 
     std::string ToString() const override;
-    ~StringValueRange() = default;
 };
 
 template <typename T>
@@ -85,8 +84,6 @@ public:
     [[nodiscard]] std::string ToString() const override {
         return "[" + std::to_string(lower_bound) + " - " + std::to_string(upper_bound) + "]";
     }
-
-    ~NumericValueRange() = default;
 };
 
 std::shared_ptr<ValueRange> CreateValueRange(TypedColumnData const& column);

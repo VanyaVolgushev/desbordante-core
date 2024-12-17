@@ -92,7 +92,7 @@ void NAR::InsertInCons(size_t feature_index, std::shared_ptr<ValueRange> range) 
     cons_.insert({feature_index, std::move(range)});
 }
 
-bool NAR::MapFitsValue(std::map<size_t, std::shared_ptr<ValueRange>> const& map,
+bool NAR::MapFitsValue(std::unordered_map<size_t, std::shared_ptr<ValueRange>> const& map,
                        size_t feature_index, std::byte const* value) {
     auto it = map.find(feature_index);
     if (it == map.end()) {

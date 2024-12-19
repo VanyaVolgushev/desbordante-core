@@ -41,7 +41,6 @@ TEST_F(DESTest, LaunchTest) {
     auto algorithm = CreateAlgorithmInstance(kAbalone, 0.5, 0.6, 100u, 100u, 0.9, 0.5,
                                              algos::des::DifferentialStrategy::rand1Bin);
     algorithm->Execute();
-    std::vector<std::string> result;
     auto result = ExtractFitnessValues(algorithm->GetNARVector());
     std::vector<std::string> expected = {"0.634851", "0.566887", "0.549872", "0.520035",
                                          "0.518598", "0.481561", "0.460124", "0.407567",

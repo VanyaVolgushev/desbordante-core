@@ -38,7 +38,7 @@ public:
     std::string ToString() const;
     void SetQualities(TypedRelation const* typed_relation);
     NARQualities const& GetQualities() const;
-        
+
     void InsertInAnte(size_t feature_index, std::shared_ptr<ValueRange> range);
     void InsertInCons(size_t feature_index, std::shared_ptr<ValueRange> range);
 };

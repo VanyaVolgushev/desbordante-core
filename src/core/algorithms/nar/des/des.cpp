@@ -42,10 +42,8 @@ void DES::MakeExecuteOptsAvailable() {
 FeatureDomains DES::FindFeatureDomains(TypedRelation const* typed_relation) {
     std::vector<std::shared_ptr<ValueRange>> feature_domains;
     feature_domains.reserve(typed_relation->GetNumColumns());
-    for (size_t i = 0; i < typed_relation->GetNumColumns(); ++i) {
-        auto const& column = typed_relation->GetColumnData(i);
-        feature_domains.push_back(CreateValueRange(column));
-    }
+    std::ranges::transform(typed_relation->GetColumnData(), std::back_inserter(feature_domains),
+                           model::CreateValueRange);
     return feature_domains;
 }
 

@@ -6,8 +6,7 @@ ValueRange::~ValueRange() {}
 
 StringValueRange::StringValueRange(TypedColumnData const& column) {
     std::unordered_set<std::string> unique_values;
-    for (size_t row_index = 0; row_index < column.GetNumRows(); ++row_index) {
-        std::byte const* value = column.GetValue(row_index);
+       for (std::byte const* value : column.GetData()) {
         auto string_value = Type::GetValue<std::string>(value);
         if (unique_values.insert(string_value).second) {
             domain.push_back(std::move(string_value));

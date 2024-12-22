@@ -21,7 +21,6 @@ std::string NAR::ToString() const {
     result << map_to_string(ante_) << "} ===> {" << map_to_string(cons_);
     result << "} s: " << qualities_.support << " c: " << qualities_.confidence;
     return result.str();
-    return result.str();
 }
 
 NARQualities CalcQualities(size_t num_rows_fit_ante, size_t num_rows_fit_ante_and_cons,

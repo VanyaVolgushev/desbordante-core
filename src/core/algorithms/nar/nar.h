@@ -12,6 +12,12 @@ struct NARQualities {
     double fitness = -1.0;
     double support = -1.0;
     double confidence = -1.0;
+
+    std::string ToString() const {
+        std::stringstream ss;
+        ss << "fitness: " << fitness << " support: " << support << " confidence: " << confidence;
+        return ss.str();
+    }
 };
 
 class NAR {

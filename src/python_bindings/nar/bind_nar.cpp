@@ -20,10 +20,18 @@ void BindNar(py::module_& main_module) {
     using namespace algos;
     using namespace algos::des;
     using model::NAR;
+    using model::NARQualities;
 
     auto nar_module = main_module.def_submodule("nar");
+
+    py::class_<NARQualities>(nar_module, "NarQualities")
+            .def("__str__", &NARQualities::ToString)
+            .def_readonly("support", &NARQualities::support)
+            .def_readonly("confidence", &NARQualities::confidence)
+            .def_readonly("fitness", &NARQualities::fitness);
+    
     py::class_<NAR>(nar_module, "NAR")
-            .def("__str__", &NAR::ToString);
+            .def("__str__", &NAR::ToString)
             .def("get_qualities", &NAR::GetQualities);
 
     py::class_<NARAlgorithm, Algorithm>(nar_module, "NarAlgorithm")

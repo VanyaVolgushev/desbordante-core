@@ -24,7 +24,7 @@ void BindNar(py::module_& main_module) {
     auto nar_module = main_module.def_submodule("nar");
     py::class_<NAR>(nar_module, "NAR")
             .def("__str__", &NAR::ToString);
-            //.def("get_qualities", &NAR::GetQualities);
+            .def("get_qualities", &NAR::GetQualities);
 
     py::class_<NARAlgorithm, Algorithm>(nar_module, "NarAlgorithm")
             .def("get_nars", &NARAlgorithm::GetNARVector);
@@ -32,8 +32,5 @@ void BindNar(py::module_& main_module) {
     auto algos_module = nar_module.def_submodule("algorithms");
     auto default_algorithm = detail::RegisterAlgorithm<DES, NARAlgorithm>(algos_module, "DES");
     algos_module.attr("Default") = default_algorithm;
-
-    // Perhaps in the future there will be a need for:
-    // default_algorithm.def("get_frequent_list", &Apriori::GetFrequentList);
 }
 }  // namespace python_bindings

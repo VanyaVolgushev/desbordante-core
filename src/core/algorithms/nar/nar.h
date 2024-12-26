@@ -45,6 +45,15 @@ public:
     void SetQualities(TypedRelation const* typed_relation);
     NARQualities const& GetQualities() const;
 
+    //TODO: replace with auto later
+    std::unordered_map<size_t, std::shared_ptr<ValueRange>> const& GetAnte() const {
+        return ante_;
+    }
+
+    std::unordered_map<size_t, std::shared_ptr<ValueRange>> const& GetCons() const {
+        return cons_;
+    }
+
     void InsertInAnte(size_t feature_index, std::shared_ptr<ValueRange> range);
     void InsertInCons(size_t feature_index, std::shared_ptr<ValueRange> range);
 };

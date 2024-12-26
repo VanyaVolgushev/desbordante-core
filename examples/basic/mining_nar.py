@@ -7,7 +7,10 @@ def print_nars(nars):
     print('Total count of NARs:', len(nars))
     print('The first 10 NARs:')
     for nar in nars[:10]:
-        print(nar)
+        print(nar, end=' ')
+        print('confidence: ' + str(nar.get_qualities.confidence), end=' ')
+        print('support: ' + str(nar.get_qualities.support))
+        print('fitness: ' + str(nar.get_qualities.fitness), end='\n')
 
 if __name__ == '__main__':
     algo = desbordante.nar.algorithms.Default()

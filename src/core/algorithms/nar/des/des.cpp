@@ -34,6 +34,7 @@ void DES::RegisterOptions() {
 }
 
 void DES::MakeExecuteOptsAvailable() {
+    NARAlgorithm::MakeExecuteOptsAvailable();
     using namespace config::names;
     MakeOptionsAvailable({kPopulationSize, kMaxFitnessEvaluations, kDifferentialScale,
                           kCrossoverProbability, kDifferentialStrategy});
@@ -76,10 +77,13 @@ unsigned long long DES::ExecuteInternal() {
         EncodedNAR mutant = MutatedIndividual(population, candidate_i, rng_);
         NAR mutant_decoded = mutant.SetQualities(feature_domains, typed_relation_.get(), rng_);
         double candidate_fitness = population[candidate_i].GetQualities().fitness;
-
-        if (mutant.GetQualities().fitness > candidate_fitness) {
+        auto mutant_qualities = mutant_decoded.GetQualities();
+        if (mutant_qualities.fitness > candidate_fitness) {
             population[candidate_i] = std::move(mutant);
-            nar_collection_.emplace_back(std::move(mutant_decoded));
+            if (mutant_qualities.support > minsup_ &&
+                mutant_qualities.confidence > minconf_) {
+                nar_collection_.emplace_back(std::move(mutant_decoded));
+            }
         }
     }
 

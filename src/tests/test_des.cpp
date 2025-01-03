@@ -37,8 +37,8 @@ protected:
     }
 };
 
-TEST_F(DESTest, LaunchTest) {
-    auto algorithm = CreateAlgorithmInstance(kAbalone, 0.5, 0.6, 100u, 100u, 0.9, 0.5,
+TEST_F(DESTest, LaunchTest1) {
+    auto algorithm = CreateAlgorithmInstance(kAbalone, 0.0, 0.0, 100u, 100u, 0.9, 0.5,
                                              algos::des::DifferentialStrategy::rand1Bin);
     algorithm->Execute();
     auto result = ExtractFitnessValues(algorithm->GetNARVector());
@@ -46,6 +46,15 @@ TEST_F(DESTest, LaunchTest) {
                                          "0.518598", "0.481561", "0.460124", "0.407567",
                                          "0.333972", "0.313191", "0.274753", "0.190558",
                                          "0.187335", "0.161869", "0.113770", "0.111297"};
+    ASSERT_EQ(result, expected);
+}
+
+TEST_F(DESTest, LaunchTest2) {
+    auto algorithm = CreateAlgorithmInstance(kAbalone, 0.2, 0.6, 200u, 300u, 0.9, 0.5,
+                                             algos::des::DifferentialStrategy::rand1Bin);
+    algorithm->Execute();
+    auto result = ExtractFitnessValues(algorithm->GetNARVector());
+    std::vector<std::string> expected = {"0.735697", "0.622020", "0.606939", "0.564184"};
     ASSERT_EQ(result, expected);
 }
 

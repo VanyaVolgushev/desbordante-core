@@ -80,8 +80,7 @@ unsigned long long DES::ExecuteInternal() {
         auto mutant_qualities = mutant_decoded.GetQualities();
         if (mutant_qualities.fitness > candidate_fitness) {
             population[candidate_i] = std::move(mutant);
-            if (mutant_qualities.support > minsup_ &&
-                mutant_qualities.confidence > minconf_) {
+            if (mutant_qualities.support > minsup_ && mutant_qualities.confidence > minconf_) {
                 nar_collection_.emplace_back(std::move(mutant_decoded));
             }
         }

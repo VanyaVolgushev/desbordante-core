@@ -2,6 +2,7 @@
 **/myeasylog.log
 .venv/
 build/
+vscode_build/
 cmake-build-debug/
 dist/
 lib/

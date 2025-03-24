@@ -12,9 +12,7 @@ class TestNeARUtilTypes : public ::testing::Test {};
 
 TEST(TestNeARUtilTypes, TennisDataSet) {
     using namespace algos;
-    CandidatePrefixTree tree{Node(OrderedFeatureIndex{}), 4, {FeatureIndex{3}, FeatureIndex{4}, FeatureIndex{2}, FeatureIndex{1}}, 1};
-    tree.Cr
-    ASSERT_EQ(, );
+    CandidatePrefixTree tree = CandidatePrefixTree({FeatureIndex{3}, FeatureIndex{4}, FeatureIndex{2}, FeatureIndex{1}});
 }
 
 }  // namespace tests

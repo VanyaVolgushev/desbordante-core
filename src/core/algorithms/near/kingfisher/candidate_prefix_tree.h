@@ -78,7 +78,7 @@ public:
     }
 
     BranchableNode& CreateNode(NodeAdress adress) {
-        BranchableNode new_node{feat_count_};
+        BranchableNode new_node{feat_count_, adress.Front()};
 
         // New nodes table is an intersection of all its subsets tables
         for (size_t i = 0; i < adress.Size(); ++i) {
@@ -97,15 +97,18 @@ public:
         ++depth_;
     }
     // feat_frequency_order should be ascending
-    CandidatePrefixTree(std::vector<FeatureIndex> feat_frequency_order)
+    CandidatePrefixTree(std::vector<FeatureIndex> feat_frequency_order) // TODO: should also take
         : root_(true),
           feat_count_(feat_frequency_order.size()),
           feat_frequency_order_(std::move(feat_frequency_order)) {
         // Create all possible nodes at depth 1
         for (size_t feat = 0; feat < feat_count_; ++feat) {
-            root_.AddChild(OrderedFeatureIndex(feat), BranchableNode(feat_count_));
+            auto node = BranchableNode(feat_count_, OrderedFeatureIndex(feat));
+            root_.AddChild(OrderedFeatureIndex(feat), std::move(node));
         }
     }
 };
 
 }  // namespace algos
+
+//TODO: UNDERSTAND COMPLETELY HOW NODES ARE PRUNED

@@ -1,114 +1,74 @@
 #pragma once
 
+#include <functional>
+#include <queue>
+#include <string>
 #include <vector>
 
+#include "algorithms/near/near.h"
 #include "algorithms/near/near_types.h"
 #include "node.h"
 
 namespace algos {
 
-// Can be any increasing sequence of OrderedFeatureIndex-es
 class NodeAdress {
 private:
     std::vector<OrderedFeatureIndex> vec_;
 
 public:
-    std::vector<OrderedFeatureIndex> Get() const {
-        return vec_;
+    NodeAdress(std::vector<OrderedFeatureIndex> vec);
+
+    NodeAdress(OrderedFeatureIndex ordered_feat_index) {
+        vec_ = {ordered_feat_index};
     }
 
-    // Returns copy of adress without one feature
-    std::vector<OrderedFeatureIndex> GetExcept(size_t at) const {
-        auto copy = vec_;
-        copy.erase(copy.begin() + at);
-        return copy;
-    }
-
-    // Returns smallest element and removes it
-    OrderedFeatureIndex PopBack() {
-        auto out = vec_[0];
-        vec_.erase(vec_.begin());
-        return out;
-    }
-
-    OrderedFeatureIndex Front() {
-        return vec_.front();
-    }
-
-    size_t Size() const {
-        return vec_.size();
-    }
-
-    bool Empty() const {
-        return vec_.empty();
-    }
-
-    NodeAdress(std::vector<OrderedFeatureIndex> vec) : vec_(vec) {
-        if (vec.empty()) {
-            return;
-        }
-        OrderedFeatureIndex prev{vec[0].val};
-        for (size_t i = 1; i < vec.size(); ++i) {
-            if (vec[i].val <= prev.val) {
-                throw std::logic_error("NodeAdress must be an increasing sequence.");
-            }
-            prev = vec[i];
-        }
-        vec_ = std::move(vec);
-    }
+    std::vector<OrderedFeatureIndex> Get() const;
+    std::vector<OrderedFeatureIndex> GetExcept(size_t at) const;
+    OrderedFeatureIndex PopBack();
+    OrderedFeatureIndex Front();
+    size_t Size() const;
+    bool Empty() const;
+    std::vector<FeatureIndex> ToFeatures(std::vector<FeatureIndex> const& order) const;
+    std::string ToString() const;
 };
 
-// Responsible for storing the search tree, maintaining its consistency and propagating information
-// about pruned paths between nodes.
+using GetFishersP = std::function<double(model::NeARIDs const& rule)>;
+
+// Returns the best possible Fisher's p-value for a node and its children given that cons_index is
+// the consequence
+using GetLowerBound1 = std::function<double(OrderedFeatureIndex index,
+                                            std::vector<FeatureIndex> feat_frequency_order)>;
+using GetLowerBound2or3 =
+        std::function<double(NodeAdress const& node_addr, OrderedFeatureIndex cons_index,
+                             bool cons_negated, std::vector<FeatureIndex> feat_frequency_order)>;
+                             
 class CandidatePrefixTree {
 private:
-    RoutingNode root_;
+    RoutingNode root_{true};
     size_t feat_count_;
-    const std::vector<FeatureIndex> feat_frequency_order_;
+    std::vector<FeatureIndex> const feat_frequency_order_;
     size_t depth_;
+    std::queue<NodeAdress> bfs_queue_;
+    std::vector<model::NeARIDs> k_best_;
+    double max_goodness_;
+
+    GetLowerBound1 lower_bound1_;
+    GetLowerBound2or3 lower_bound2_;
+    GetLowerBound2or3 lower_bound3_;
+    GetFishersP get_p_;
+    double max_p_;
+
+    Node& GetNode(NodeAdress adress);
+    void IncreaseDepth();
+    void CheckDepth1();
+    void PerformBFS();
 
 public:
-    Node& GetNode(NodeAdress adress) {
-        Node& current = root_;
-        while (!adress.Empty()) {
-            auto next_ordered_index = adress.PopBack();
-            current = current.GetChild(next_ordered_index);
-        }
-        return current;
-    }
-
-    BranchableNode& CreateNode(NodeAdress adress) {
-        BranchableNode new_node{feat_count_, adress.Front()};
-
-        // New nodes table is an intersection of all its subsets tables
-        for (size_t i = 0; i < adress.Size(); ++i) {
-            NodeAdress subsetAdress = adress.GetExcept(i);
-            BranchableNode& subset = (BranchableNode&)(GetNode(subsetAdress)); //TODO: if subset not branchable
-            new_node.Intersect(subset);
-        }
-        // TODO: if result is empty
-        NodeAdress parentAdress = adress.GetExcept(adress.Size() - 1);
-        BranchableNode& parent = (BranchableNode&)GetNode(parentAdress); // TODO: throw exception if triyng to create node that is child of RoutingNode
-        parent.AddChild(adress.Front(), std::move(new_node));
-        return (BranchableNode&)parent.GetChild(adress.Front());
-    }
-
-    void IncreaseDepth() {
-        ++depth_;
-    }
-    // feat_frequency_order should be ascending
-    CandidatePrefixTree(std::vector<FeatureIndex> feat_frequency_order) // TODO: should also take
-        : root_(true),
-          feat_count_(feat_frequency_order.size()),
-          feat_frequency_order_(std::move(feat_frequency_order)) {
-        // Create all possible nodes at depth 1
-        for (size_t feat = 0; feat < feat_count_; ++feat) {
-            auto node = BranchableNode(feat_count_, OrderedFeatureIndex(feat));
-            root_.AddChild(OrderedFeatureIndex(feat), std::move(node));
-        }
-    }
+    CandidatePrefixTree(std::vector<FeatureIndex>&& feat_frequency_order,
+                        GetLowerBound1 lower_bound1, GetLowerBound2or3 lower_bound2,
+                        GetLowerBound2or3 lower_bound3, GetFishersP goodness_measure,
+                        double max_p);
+    std::vector<model::NeARIDs>& GetNeARIDs();
 };
 
 }  // namespace algos
-
-//TODO: UNDERSTAND COMPLETELY HOW NODES ARE PRUNED

@@ -5,6 +5,7 @@
 #include <memory>
 #include <ranges>
 #include <vector>
+#include <map>
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -13,27 +14,24 @@
 namespace algos {
 
 class BranchableNode;
-
+// TODO: remove underscores from names
 // Represents a node of the branch-and-bound search tree.
-class Node {
-protected:
-    std::unordered_map<OrderedFeatureIndex, std::shared_ptr<Node>, OrderedFeatureIndexHash>
-            children_;
+struct Node {
+    std::map<OrderedFeatureIndex, std::shared_ptr<Node>>
+            children;
 
-public:
     Node& GetChild(OrderedFeatureIndex feat_index) {
-        return *children_.at(feat_index);
+        return *children.at(feat_index);
     }
 
     virtual void AddChild(OrderedFeatureIndex feat_index, Node&& child) {
-        children_.emplace(feat_index, std::move(child));
+        children.emplace(feat_index, std::make_shared<Node>(std::move(child)));
     }
 
     Node() = default;
 };
 
-class BranchableNode : public Node {
-private:
+struct BranchableNode : public Node {
     // A 1 in a position means that the feature of that ordered index (or its negation
     // in case of n_possible) can be a consequence in this node or its children and will be
     // evaluated.
@@ -46,7 +44,6 @@ private:
     std::vector<double> p_best_;
     std::vector<double> n_best_;
 
-public:
     void Intersect(BranchableNode other) {
         p_possible_ &= other.p_possible_;
         n_possible_ &= other.n_possible_;
@@ -71,11 +68,9 @@ public:
     }
 };
 
-class RoutingNode : public Node {
-private:
+struct RoutingNode : public Node {
     bool isRoot_;
 
-public:
     RoutingNode(bool isRoot = false) : isRoot_(isRoot) {}
 
     void AddChild(OrderedFeatureIndex feat_index, Node&& child) override {

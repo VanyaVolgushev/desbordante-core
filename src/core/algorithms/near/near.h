@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <string>
 
 #include "near_types.h"
 
@@ -20,7 +21,7 @@ struct NeARIDs {
           cons_negated_(cons_negated) {}
 
     std::string ToString() const {
-        return "<A string representation of NeAR>";
+        return "<A string representation of NeAR>"; // TODO: implement this
     }
 };
 

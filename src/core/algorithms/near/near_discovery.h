@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "algorithms/algorithm.h"
 #include "algorithms/association_rules/ar_algorithm_enums.h"
@@ -18,7 +18,7 @@ private:
     bool first_column_tid_;
     config::InputTable input_table_;
     InputFormat input_format_ = InputFormat::singular;
-    
+
     void RegisterOptions();
 
 protected:
@@ -32,9 +32,11 @@ public:
     explicit NeARDiscovery(std::vector<std::string_view> phase_names);
     explicit NeARDiscovery();
     void LoadDataInternal() final;
+
     std::vector<model::NeARIDs> const& GetNeARIDsVector() const {
         return near_collection_;
     }
+
     std::vector<model::NeARStrings> const& GetNeARStringsVector() const;
 };
 

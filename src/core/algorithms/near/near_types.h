@@ -6,6 +6,10 @@
 // Wrappers to prevent accidental implicit conversions of ordered/unordered indices
 struct FeatureIndex {
     size_t val;
+    
+    std::string ToString() {
+        return std::to_string(val);
+    }
 };
 
 struct OrderedFeatureIndex {
@@ -22,7 +26,15 @@ struct OrderedFeatureIndex {
         return val == other.val;
     }
 
+    bool operator<(const OrderedFeatureIndex& other) const {
+        return val < other.val;
+    }
+
     explicit OrderedFeatureIndex(size_t index) : val(index) {}
+
+    std::string ToString() {
+        return std::to_string(val);
+    }
 
     OrderedFeatureIndex() = default;
 };

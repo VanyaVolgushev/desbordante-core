@@ -36,17 +36,15 @@ using GetFishersP = std::function<double(model::NeARIDs const& rule)>;
 
 // Returns the best possible Fisher's p-value for a node and its children given that cons_index is
 // the consequence
-using GetLowerBound1 = std::function<double(OrderedFeatureIndex index,
-                                            std::vector<FeatureIndex> feat_frequency_order)>;
-using GetLowerBound2or3 =
-        std::function<double(NodeAdress const& node_addr, OrderedFeatureIndex cons_index,
-                             bool cons_negated, std::vector<FeatureIndex> feat_frequency_order)>;
-                             
+using GetLowerBound1 = std::function<double(OrderedFeatureIndex index)>;
+using GetLowerBound2or3 = std::function<double(NodeAdress const& node_addr,
+                                               OrderedFeatureIndex cons_index, bool cons_positive)>;
+
+// All features inside this class are indexed in order of their frequency
 class CandidatePrefixTree {
 private:
     RoutingNode root_{true};
     size_t feat_count_;
-    std::vector<FeatureIndex> const feat_frequency_order_;
     size_t depth_;
     std::queue<NodeAdress> bfs_queue_;
     std::vector<model::NeARIDs> k_best_;
@@ -64,10 +62,9 @@ private:
     void PerformBFS();
 
 public:
-    CandidatePrefixTree(std::vector<FeatureIndex>&& feat_frequency_order,
-                        GetLowerBound1 lower_bound1, GetLowerBound2or3 lower_bound2,
-                        GetLowerBound2or3 lower_bound3, GetFishersP goodness_measure,
-                        double max_p);
+    CandidatePrefixTree(size_t feat_count, GetLowerBound1 lower_bound1,
+                        GetLowerBound2or3 lower_bound2, GetLowerBound2or3 lower_bound3,
+                        GetFishersP goodness_measure, double max_p);
     std::vector<model::NeARIDs>& GetNeARIDs();
 };
 

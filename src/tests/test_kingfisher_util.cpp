@@ -11,6 +11,9 @@ namespace tests {
 
 class TestNeARUtilTypes : public ::testing::Test {};
 
+std::vector<FeatureIndex> feat_frequency_order = {FeatureIndex{3}, FeatureIndex{4}, FeatureIndex{2},
+                                                  FeatureIndex{1}};
+
 std::string VectorToString(std::vector<FeatureIndex> const& vec) {
     std::ostringstream oss;
     oss << "[";
@@ -24,8 +27,7 @@ std::string VectorToString(std::vector<FeatureIndex> const& vec) {
     return oss.str();
 }
 
-double GetLowerBound1(OrderedFeatureIndex feature,
-                      std::vector<FeatureIndex> feat_frequency_order) {
+double GetLowerBound1(OrderedFeatureIndex feature) {
     std::cout << "Upper bound 1 for feat " + feat_frequency_order[feature.val].ToString() + " is: ";
     double bound;
     std::cin >> bound;
@@ -33,10 +35,10 @@ double GetLowerBound1(OrderedFeatureIndex feature,
 }
 
 double GetLowerBound2(algos::NodeAdress const& node_addr, OrderedFeatureIndex cons_index,
-                      bool cons_negated, std::vector<FeatureIndex> feat_frequency_order) {
+                      bool cons_positive) {
     std::cout << "Upper bound 2 for " + VectorToString(node_addr.ToFeatures(feat_frequency_order)) +
                          " at " + std::to_string(feat_frequency_order[cons_index.val].val) +
-                         " with cons negated:" + std::to_string(cons_negated) + " is: ";
+                         " with cons positive:" + std::to_string(cons_positive) + " is: ";
 
     double bound;
     std::cin >> bound;
@@ -44,10 +46,10 @@ double GetLowerBound2(algos::NodeAdress const& node_addr, OrderedFeatureIndex co
 }
 
 double GetLowerBound3(algos::NodeAdress const& node_addr, OrderedFeatureIndex cons_index,
-                      bool cons_negated, std::vector<FeatureIndex> feat_frequency_order) {
+                      bool cons_positive) {
     std::cout << "Upper bound 3 for " + VectorToString(node_addr.ToFeatures(feat_frequency_order)) +
                          " at " + std::to_string(feat_frequency_order[cons_index.val].val) +
-                         " with cons negated:" + std::to_string(cons_negated) + " is: ";
+                         " with cons positive:" + std::to_string(cons_positive) + " is: ";
 
     double bound;
     std::cin >> bound;
@@ -64,9 +66,8 @@ double GetFishersP(model::NeARIDs const& rule) {
 TEST(TestNeARUtilTypes, ExampleFromPaper) {
     using namespace algos;
 
-    CandidatePrefixTree tree = CandidatePrefixTree(
-            {FeatureIndex{3}, FeatureIndex{4}, FeatureIndex{2}, FeatureIndex{1}}, GetLowerBound1,
-            GetLowerBound2, GetLowerBound3, GetFishersP, 1.2e-8);
+    CandidatePrefixTree tree = CandidatePrefixTree(4, GetLowerBound1, GetLowerBound2,
+                                                   GetLowerBound3, GetFishersP, 1.2e-8);
 }
 
 }  // namespace tests

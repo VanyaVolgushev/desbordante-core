@@ -84,22 +84,27 @@ void CandidatePrefixTree::IncreaseDepth() {
 }
 
 void CandidatePrefixTree::CheckDepth1() {
-    //for (auto& [ordered_feat_index, node_ptr] : root_.children) {
+    //for (auto& [node_feat, node_ptr] : root_.children) {
     //    auto& branchable_node = *std::static_pointer_cast<BranchableNode>(node_ptr);
-    //    NodeAdress adress{ordered_feat_index};
-    //    
+    //    auto nodeAdress = NodeAdress{node_feat};
+    //    // Check all possible branches' best-case p values
+    //    for (auto child_feat = OrderedFeatureIndex{0}; child_feat < feat_count_; child_feat++) {
+    //        bool lb1_ok = lower_bound1_(child_feat) < max_p_;
+    //        bool lb2_ok_pos = lower_bound2_(nodeAdress, child_feat, true) < max_p_;
+    //        bool lb2_ok_neg = lower_bound2_(nodeAdress, child_feat, false) < max_p_;
+    //        branchable_node.p_possible_[child_feat] = lb1_ok && lb2_ok_pos;
+    //        branchable_node.n_possible_[child_feat] = lb1_ok && lb2_ok_neg;
+    //    }
     //}
 }
 
 void CandidatePrefixTree::PerformBFS() {}
 
-CandidatePrefixTree::CandidatePrefixTree(std::vector<FeatureIndex>&& feat_frequency_order,
-                                         GetLowerBound1 lower_bound1,
+CandidatePrefixTree::CandidatePrefixTree(size_t feat_count_, GetLowerBound1 lower_bound1,
                                          GetLowerBound2or3 lower_bound2,
                                          GetLowerBound2or3 lower_bound3, GetFishersP get_p,
                                          double max_p)
-    : feat_count_(feat_frequency_order.size()),
-      feat_frequency_order_(std::move(feat_frequency_order)),
+    : feat_count_(feat_count_),
       lower_bound1_(lower_bound1),
       lower_bound2_(lower_bound2),
       lower_bound3_(lower_bound3),

@@ -18,7 +18,7 @@ std::string VectorToString(std::vector<FeatureIndex> const& vec) {
     std::ostringstream oss;
     oss << "[";
     for (size_t i = 0; i < vec.size(); ++i) {
-        oss << vec[i].val;  // Convert FeatureIndex to string
+        oss << vec[i];  // Convert FeatureIndex to string
         if (i < vec.size() - 1) {
             oss << ", ";
         }
@@ -27,33 +27,34 @@ std::string VectorToString(std::vector<FeatureIndex> const& vec) {
     return oss.str();
 }
 
-double GetLowerBound1(OrderedFeatureIndex feature) {
-    std::cout << "Upper bound 1 for feat " + feat_frequency_order[feature.val].ToString() + " is: ";
-    double bound;
-    std::cin >> bound;
-    return bound;
+double GetLowerBound1(OFeatureIndex feature) {
+    std::cout << "Lower bound 1 for feat " + std::to_string(feat_frequency_order[feature]) + " is: ";
+    //double bound;
+    //std::cin >> bound;
+    return 0;
 }
 
-double GetLowerBound2(algos::NodeAdress const& node_addr, OrderedFeatureIndex cons_index,
+double GetLowerBound2(algos::NodeAdress const& node_addr, OFeatureIndex cons_index,
                       bool cons_positive) {
-    std::cout << "Upper bound 2 for " + VectorToString(node_addr.ToFeatures(feat_frequency_order)) +
-                         " at " + std::to_string(feat_frequency_order[cons_index.val].val) +
+                        // TODO: проверка на то что выражения под факториалами неотрицательны
+    std::cout << "Lower bound 2 for " + VectorToString(node_addr.ToFeatures(feat_frequency_order)) +
+                         " at " + std::to_string(feat_frequency_order[cons_index]) +
                          " with cons positive:" + std::to_string(cons_positive) + " is: ";
-
-    double bound;
-    std::cin >> bound;
-    return bound;
+//
+    //double bound;
+    //std::cin >> bound;
+    return 0;
 }
 
-double GetLowerBound3(algos::NodeAdress const& node_addr, OrderedFeatureIndex cons_index,
+double GetLowerBound3(algos::NodeAdress const& node_addr, OFeatureIndex cons_index,
                       bool cons_positive) {
-    std::cout << "Upper bound 3 for " + VectorToString(node_addr.ToFeatures(feat_frequency_order)) +
-                         " at " + std::to_string(feat_frequency_order[cons_index.val].val) +
+    std::cout << "Lower bound 3 for " + VectorToString(node_addr.ToFeatures(feat_frequency_order)) +
+                         " at " + std::to_string(feat_frequency_order[cons_index]) +
                          " with cons positive:" + std::to_string(cons_positive) + " is: ";
-
-    double bound;
-    std::cin >> bound;
-    return bound;
+//
+    //double bound;
+    //std::cin >> bound;
+    return 0;
 }
 
 double GetFishersP(model::NeARIDs const& rule) {

@@ -10,7 +10,7 @@
 #include "node.h"
 #include "node_adress.h"
 
-namespace algos {
+namespace kingfisher {
 
 using GetFishersP = std::function<double(model::NeARIDs const& rule)>;
 

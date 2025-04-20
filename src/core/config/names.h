@@ -20,6 +20,7 @@ constexpr auto kMaximumArity = "max_arity";
 constexpr auto kSeed = "seed";
 constexpr auto kMinimumSupport = "minsup";
 constexpr auto kMinimumConfidence = "minconf";
+constexpr auto kMaxPValue = "max_p";
 constexpr auto kInputFormat = "input_format";
 constexpr auto kTIdColumnIndex = "tid_column_index";
 constexpr auto kItemColumnIndex = "item_column_index";

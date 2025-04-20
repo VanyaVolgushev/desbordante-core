@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include "near_types.h"
 
@@ -26,7 +27,21 @@ struct NeARIDs {
 };
 
 struct NeARStrings {
-    // . . .
+    std::vector<std::string> ante_;
+    std::string cons_;
+
+    std::string ToString() const {
+        std::ostringstream oss;
+
+        for (size_t i = 0; i < ante_.size(); ++i) {
+            if (i != 0) 
+                oss << ", ";
+            oss << ante_[i];
+        }
+        oss << " -> " << cons_;
+
+        return oss.str();
+    }
 };
 
 } // namespace model

@@ -11,7 +11,7 @@
 
 #include "algorithms/near/near_types.h"
 
-namespace algos {
+namespace kingfisher {
 
 class BranchableNode;
 // TODO: remove underscores from names

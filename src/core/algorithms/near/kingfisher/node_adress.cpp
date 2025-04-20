@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace algos {
+namespace kingfisher {
 
 NodeAdress::NodeAdress(std::vector<OFeatureIndex> vec) : feat_i_vec_(std::move(vec)) {
     if (vec.empty()) {

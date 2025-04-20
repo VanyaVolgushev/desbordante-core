@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace algos {
+namespace kingfisher {
 // Debug
 // Recursively visualize the tree, using an indentation proportional to the current depth.
 // Helper function: Recursively prints the children of a node using ASCII tree branch symbols.

@@ -5,6 +5,8 @@
 #include <stdexcept>
 
 namespace kingfisher {
+using Entry = std::pair<double, model::NeARIDs>;
+
 // Debug
 // Recursively visualize the tree, using an indentation proportional to the current depth.
 // Helper function: Recursively prints the children of a node using ASCII tree branch symbols.
@@ -36,7 +38,7 @@ void PrintAsciiTree(Node const& root, size_t feat_count) {
 }
 
 std::vector<model::NeARIDs>& CandidatePrefixTree::GetNeARIDs() {
-    return k_best_;
+    return k_best_;  // TODO: strip p-values
 }
 
 std::optional<BranchableNode> CandidatePrefixTree::MakeBranchableFromParents(
@@ -57,6 +59,7 @@ std::optional<BranchableNode> CandidatePrefixTree::MakeBranchableFromParents(
             return {};
         }
     }
+
     return new_node;
 }
 
@@ -97,8 +100,14 @@ void CandidatePrefixTree::AddChildrenToQueue(NodeAdress adress) {
     }
 }
 
-void CandidatePrefixTree::TrySaveRule(double fishers_p, model::NeARIDs near) {
-    std::cout << fishers_p << near.ToString();
+inline void CandidatePrefixTree::TrySaveRule(double fishers_p, model::NeARIDs near) {
+    Entry e{fishers_p, std::move(near)};
+    if (topk_queue_.size() < max_rules_) {
+        topk_queue_.push(std::move(e));
+    } else if (fishers_p > topk_queue_.top().first) {
+        topk_queue_.pop();
+        topk_queue_.push(std::move(e));
+    }
 }
 
 void CandidatePrefixTree::EvaluatePossibleRules(NodeAdress node, boost::dynamic_bitset<> p_possible,
@@ -171,16 +180,28 @@ void CandidatePrefixTree::PerformBFS() {
     }
 }
 
+void CandidatePrefixTree::FinalizeTopK() {
+    k_best_.clear();
+    k_best_.reserve(topk_queue_.size());
+    while (!topk_queue_.empty()) {
+        k_best_.push_back(std::move(topk_queue_.top()));
+        topk_queue_.pop();
+    }
+    std::sort(k_best_.begin(), k_best_.end(),
+              [](auto const& A, auto const& B) { return A.first > B.first; });
+}
+
 CandidatePrefixTree::CandidatePrefixTree(size_t feat_count_, GetLowerBound1 lower_bound1,
                                          GetLowerBound2or3 lower_bound2,
                                          GetLowerBound2or3 lower_bound3, GetFishersP get_p,
-                                         double max_p)
+                                         double max_p, unsigned max_rules)
     : feat_count_(feat_count_),
       lower_bound1_(lower_bound1),
       lower_bound2_(lower_bound2),
       lower_bound3_(lower_bound3),
       get_p_(get_p),
-      max_p_(max_p) {
+      max_p_(max_p),
+      max_rules_(max_rules) {
     for (size_t feat = 0; feat < feat_count_; ++feat) {
         auto node = BranchableNode(feat_count_, OFeatureIndex(feat));
         root_.AddChild(OFeatureIndex(feat), std::make_shared<BranchableNode>(std::move(node)));
@@ -189,4 +210,4 @@ CandidatePrefixTree::CandidatePrefixTree(size_t feat_count_, GetLowerBound1 lowe
     PerformBFS();
 }
 
-}  // namespace algos
+}  // namespace kingfisher

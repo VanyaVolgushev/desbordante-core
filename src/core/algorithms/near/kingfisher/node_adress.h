@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "algorithms/near/near_types.h"
+#include "algorithms/near/types.h"
 
 namespace kingfisher {
 

@@ -9,7 +9,7 @@
 
 #include <boost/dynamic_bitset.hpp>
 
-#include "algorithms/near/near_types.h"
+#include "algorithms/near/types.h"
 
 namespace kingfisher {
 

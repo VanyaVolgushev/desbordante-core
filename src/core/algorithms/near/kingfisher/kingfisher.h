@@ -18,7 +18,9 @@ private:
                           bool cons_positive);
     double GetLowerBound3(kingfisher::NodeAdress const& node_addr, OFeatureIndex cons_index,
                           bool cons_positive);
-    double GetFishersP(model::NeARIDs const& rule);
+
+    // Rule is provided with indices ordered by frequency
+    double GetFishersP(model::NeARIDs const& o_rule);
 
     void RegisterOptions();
     void ResetState() override;

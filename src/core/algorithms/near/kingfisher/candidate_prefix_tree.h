@@ -26,30 +26,38 @@ class CandidatePrefixTree {
 private:
     RoutingNode root_{true};
     size_t feat_count_;
-    size_t depth_;
-    // TODO: store pointers to nodes alongside their adresses to avoid repeated searches through the
-    // tree
+    // TODO: store pointers to nodes alongside their addresses to avoid repeated searches through
+    // the tree
     std::queue<NodeAdress> bfs_queue_;
-    // Ordered by p-value
-    std::vector<std::pair<double, model::NeARIDs>> k_best_;
+
+    // k-best storage: vector for final results, min-heap for intermediate
+    std::vector<model::NeARIDs> k_best_;
+
+    struct MinCmp {
+        bool operator()(model::NeARIDs const& a, model::NeARIDs const& b) const {
+            // min-heap: smallest p-value on top
+            return a.p_value > b.p_value;
+        }
+    };
+
+    std::priority_queue<model::NeARIDs, std::vector<model::NeARIDs>, MinCmp> topk_queue_;
 
     GetLowerBound1 lower_bound1_;
     GetLowerBound2or3 lower_bound2_;
     GetLowerBound2or3 lower_bound3_;
     GetFishersP get_p_;
 
-    double max_p_;
-    unsigned max_rules_;
+    double max_p_;        // threshold p-value
+    unsigned max_rules_;  // k
 
     std::optional<BranchableNode> MakeBranchableFromParents(
             NodeAdress adress_of_node_to_make) const;
 
     std::optional<Node* const> GetNode(NodeAdress adress);
     std::optional<Node const* const> GetNode(NodeAdress adress) const;
-    void IncreaseDepth();
 
     void AddChildrenToQueue(NodeAdress parent);
-    void TrySaveRule(double fishers_p, model::NeARIDs near);
+    void TrySaveRule(model::NeARIDs&& near);
     void EvaluatePossibleRules(NodeAdress node, boost::dynamic_bitset<> p_possible,
                                boost::dynamic_bitset<> n_possible);
     bool CheckNode(NodeAdress node);
@@ -57,12 +65,14 @@ private:
     void PerformBFS();
 
     void FinalizeTopK();
-    
+
 public:
+
+    std::vector<model::NeARIDs> GetNeARIDs();
+
     CandidatePrefixTree(size_t feat_count, GetLowerBound1 lower_bound1,
                         GetLowerBound2or3 lower_bound2, GetLowerBound2or3 lower_bound3,
                         GetFishersP get_p, double max_p, unsigned max_rules_);
-    std::vector<model::NeARIDs>& GetNeARIDs();
 };
 
 }  // namespace kingfisher

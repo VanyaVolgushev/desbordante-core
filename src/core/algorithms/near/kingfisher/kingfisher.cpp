@@ -1,6 +1,7 @@
 #include "kingfisher.h"
 
 #include <iostream>
+
 #include <boost/math/distributions/hypergeometric.hpp>
 
 #include "algorithms/near/near_discovery.h"
@@ -16,6 +17,7 @@ Kingfisher::Kingfisher() : NeARDiscovery({}) {
 void Kingfisher::RegisterOptions() {
     DESBORDANTE_OPTION_USING;
 
+    RegisterOption(Option{&max_rules_, kMaxRules, kDMaxRules, 10u});
     RegisterOption(Option{&max_p_, kMaxPValue, kDMaxPValue, 1.2e-8});
 }
 
@@ -25,10 +27,11 @@ void Kingfisher::ResetState() {
 
 void Kingfisher::MakeExecuteOptsAvailable() {
     using namespace config::names;
-    MakeOptionsAvailable({kMaxPValue});
+    MakeOptionsAvailable({kMaxPValue, kMaxRules});
 }
 
-std::string Kingfisher::VectorToString(std::vector<FeatureIndex> const& vec) {
+template <typename T>
+std::string Kingfisher::VectorToString(std::vector<T> const& vec) {
     std::ostringstream oss;
     oss << "[";
     for (size_t i = 0; i < vec.size(); ++i) {
@@ -78,55 +81,56 @@ double Kingfisher::GetLowerBound3(kingfisher::NodeAdress const& node_addr, OFeat
 double Kingfisher::GetFishersP(model::NeARIDs const& rule) {
     model::NeARIDs real_rule = rule.UndoOrder(feature_frequency_order_);
 
-    auto hasAnte = [](std::vector<unsigned> const& item_ids, model::NeARIDs const& r) {
-        for(auto f: r.ante)
-            if(std::find(item_ids.begin(), item_ids.end(), f) == item_ids.end())
+    auto hasAnte = [&](std::vector<unsigned> const& ids, model::NeARIDs const& r) {
+        for (auto f : r.ante)
+            if (std::find(ids.begin(), ids.end(), f) == ids.end())
                 return false;
         return true;
     };
-    auto hasCons = [](std::vector<unsigned> const& item_ids, model::NeARIDs const& r) {
-        bool found = std::find(item_ids.begin(), item_ids.end(), r.cons) != item_ids.end();
+    auto hasCons = [&](std::vector<unsigned> const& ids, model::NeARIDs const& r) {
+        bool found = std::find(ids.begin(), ids.end(), r.cons) != ids.end();
         return r.cons_positive ? found : !found;
     };
 
-    // 1) Count a, b, c, d
+    // 1) Count contingency‐table cells a, b, c, d
     std::size_t a=0, b=0, c=0, d=0;
-    for(auto const& [itemset_index, itemset] : transactional_data_->GetTransactions()) {
-        bool X = hasAnte(itemset.GetItemsIDs(), real_rule);
-        bool Y = hasCons(itemset.GetItemsIDs(), real_rule);
-        if     (X && Y)         ++a;
-        else if(X && !Y)        ++b;
-        else if(!X && Y)        ++c;
-        else /* !X && !Y */     ++d;
+    for (auto const& [idx, tx] : transactional_data_->GetTransactions()) {
+        bool X = hasAnte(tx.GetItemsIDs(), real_rule);
+        bool Y = hasCons(tx.GetItemsIDs(), real_rule);
+        if      (X && Y)  ++a;
+        else if (X && !Y) ++b;
+        else if (!X && Y) ++c;
+        else              ++d;
     }
 
-    // 2) Build Boost hypergeometric_distribution
-    //    N = total transactions, r = successes in pop = a+c, n = draws = a+b
-    const unsigned N = a + b + c + d;
-    const unsigned r = a + c;
-    const unsigned n = a + b;
+    // 2) Build hypergeometric_distribution
+    const unsigned N = a + b + c + d;    // total transactions
+    const unsigned r = a + c;            // successes in population
+    const unsigned n = a + b;            // draws
     using boost::math::hypergeometric_distribution;
     hypergeometric_distribution<> dist(r, n, N);
 
-    // 3) Compute observed cell‑probability
-    double p_obs = boost::math::pdf(dist, a);
+    // 3) Right‐sided p‐value: P(X >= a)
+    // Option A: direct summation
+    //unsigned k_max = std::min(n, r);
+    //double p_right = 0.0;
+    //for (unsigned k = a; k <= k_max; ++k) {
+    //    p_right += boost::math::pdf(dist, k);
+    //}
+    //return p_right;
 
-    // 4) Sum two‑sided P over all k with pdf(k) <= pdf(a)
-    unsigned k_min = std::max<int>(0, int(n + r - N));
-    unsigned k_max = std::min(n, r);
-    double p_two_sided = 0.0;
-    for(unsigned k = k_min; k <= k_max; ++k) {
-        double p_k = boost::math::pdf(dist, k);
-        if(p_k <= p_obs)
-            p_two_sided += p_k;
-    }
-
-    return p_two_sided;
+    // Option B: using the complementary CDF
+    // If a == 0, P(X ≥ 0) is trivially 1:
+    if (a == 0)
+        return 1.0;
+    double q = static_cast<double>(a - 1);
+    return boost::math::cdf(complement(dist, q));
 }
 
 unsigned long long Kingfisher::ExecuteInternal() {
-    // CALCS MINIMUM FREQUENCY AND CREATES TREE WITH ATTRS THAT SATISFY IT
-    feature_frequency_order_ = {1, 2, 3, 0};  // hard coded for now
+    // TODO: CALCS MINIMUM FREQUENCY AND CREATES TREE WITH ATTRS THAT SATISFY IT
+    std::cout << VectorToString(transactional_data_->GetItemUniverse()) << std::endl;
+    feature_frequency_order_ = {2, 1, 3, 0};  // hard coded for now
     assert(feature_frequency_order_.size() == transactional_data_->GetUniverseSize());
 
     using namespace std::placeholders;
@@ -136,7 +140,9 @@ unsigned long long Kingfisher::ExecuteInternal() {
             std::bind(&Kingfisher::GetLowerBound2, this, _1, _2, _3),
             std::bind(&Kingfisher::GetLowerBound3, this, _1, _2, _3),
             std::bind(&Kingfisher::GetFishersP, this, _1),
-            max_p_};
+            max_p_,
+            max_rules_};
+    near_collection_ = tree.GetNeARIDs();
 
     return 0;
 }

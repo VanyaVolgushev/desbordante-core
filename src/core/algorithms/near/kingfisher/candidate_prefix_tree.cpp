@@ -37,8 +37,8 @@ void PrintAsciiTree(Node const& root, size_t feat_count) {
     PrintAsciiTreeChildren(root, feat_count, "");
 }
 
-std::vector<model::NeARIDs>& CandidatePrefixTree::GetNeARIDs() {
-    return k_best_;  // TODO: strip p-values
+std::vector<model::NeARIDs> CandidatePrefixTree::GetNeARIDs() {
+    return k_best_;
 }
 
 std::optional<BranchableNode> CandidatePrefixTree::MakeBranchableFromParents(
@@ -90,23 +90,21 @@ std::optional<Node const* const> CandidatePrefixTree::GetNode(NodeAdress adress)
     return current;
 }
 
-void CandidatePrefixTree::IncreaseDepth() {
-    ++depth_;
-}
-
 void CandidatePrefixTree::AddChildrenToQueue(NodeAdress adress) {
     for (NodeAdress child_adress : adress.GetChildren(feat_count_)) {
         bfs_queue_.emplace(child_adress);
     }
 }
 
-inline void CandidatePrefixTree::TrySaveRule(double fishers_p, model::NeARIDs near) {
-    Entry e{fishers_p, std::move(near)};
+inline void CandidatePrefixTree::TrySaveRule(model::NeARIDs&& near) {
+    if (near.p_value > max_p_) {
+        return;
+    }
     if (topk_queue_.size() < max_rules_) {
-        topk_queue_.push(std::move(e));
-    } else if (fishers_p > topk_queue_.top().first) {
+        topk_queue_.push(std::move(near));
+    } else if (near.p_value < topk_queue_.top().p_value) {
         topk_queue_.pop();
-        topk_queue_.push(std::move(e));
+        topk_queue_.push(std::move(near));
     }
 }
 
@@ -116,8 +114,8 @@ void CandidatePrefixTree::EvaluatePossibleRules(NodeAdress node, boost::dynamic_
         for (size_t feat = 0; feat < feat_count_; ++feat) {
             if (possible[feat]) {
                 model::NeARIDs near{node.GetExceptFeat(feat), feat, cons_positive};
-                double fishers_p = get_p_(near);
-                TrySaveRule(fishers_p, near);
+                near.p_value = get_p_(near);
+                TrySaveRule(std::move(near));
                 // TODO: Update p_best?
             }
         }
@@ -188,7 +186,7 @@ void CandidatePrefixTree::FinalizeTopK() {
         topk_queue_.pop();
     }
     std::sort(k_best_.begin(), k_best_.end(),
-              [](auto const& A, auto const& B) { return A.first > B.first; });
+              [](auto const& A, auto const& B) { return A.p_value < B.p_value; });
 }
 
 CandidatePrefixTree::CandidatePrefixTree(size_t feat_count_, GetLowerBound1 lower_bound1,
@@ -208,6 +206,7 @@ CandidatePrefixTree::CandidatePrefixTree(size_t feat_count_, GetLowerBound1 lowe
     }
     CheckDepth1();
     PerformBFS();
+    FinalizeTopK();
 }
 
 }  // namespace kingfisher

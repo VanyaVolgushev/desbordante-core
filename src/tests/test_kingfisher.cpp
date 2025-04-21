@@ -8,39 +8,40 @@
 #include "csv_config_util.h"
 
 namespace tests {
-template<typename T>
+template <typename T>
 std::string VectorToString(std::vector<T> const& vec) {
     std::ostringstream oss;
-    oss << "[";
+    oss << "\n";
     for (size_t i = 0; i < vec.size(); ++i) {
         oss << vec[i].ToString();  // Convert FeatureIndex to string
         if (i < vec.size() - 1) {
-            oss << ", ";
+            oss << "\n";
         }
     }
-    oss << "]";
     return oss.str();
 }
 
 class NeARAlgorithmTest : public ::testing::Test {
 protected:
     static algos::StdParamsMap GetParamMap(CSVConfig const& csv_config, double maxP,
-                                           unsigned int tidColumnIndex,
+                                           unsigned int maxRules, unsigned int tidColumnIndex,
                                            unsigned int itemColumnIndex) {
         using namespace config::names;
         return {{kCsvConfig, csv_config},
                 {kInputFormat, +algos::InputFormat::singular},
                 {kMaxPValue, maxP},
+                {kMaxRules, maxRules},
                 {kTIdColumnIndex, tidColumnIndex},
                 {kItemColumnIndex, itemColumnIndex}};
     }
 
     static algos::StdParamsMap GetParamMap(CSVConfig const& csv_config, double maxP,
-                                           bool firstColumnTid) {
+                                           unsigned int maxRules, bool firstColumnTid) {
         using namespace config::names;
         return {{kCsvConfig, csv_config},
                 {kInputFormat, +algos::InputFormat::tabular},
                 {kMaxPValue, maxP},
+                {kMaxRules, maxRules},
                 {kFirstColumnTId, firstColumnTid}};
     }
 
@@ -52,10 +53,11 @@ protected:
 };
 
 TEST_F(NeARAlgorithmTest, PaperExampleDataset) {
-    auto algorithm = CreateAlgorithmInstance(kTestNeAR1, 1.2e-8, false);
+    auto algorithm = CreateAlgorithmInstance(kTestNeAR1, 1.2e-8, 1000, false);
     algorithm->Execute();
-    auto const rules = algorithm->GetNeARStringsVector();
+    auto const rules = algorithm->GetNeARIDsVector();
     std::cout << VectorToString(rules);
+    SUCCEED();
 }
 
 }  // namespace tests

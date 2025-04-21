@@ -33,11 +33,13 @@ public:
     explicit NeARDiscovery();
     void LoadDataInternal() final;
 
-    std::vector<model::NeARIDs> const& GetNeARIDsVector() const {
+    std::vector<model::NeARIDs> GetNeARIDsVector() const {
         return near_collection_;
     }
 
-    std::vector<model::NeARStrings> const& GetNeARStringsVector() const;
+    std::vector<model::NeARStrings> const& GetNeARStringsVector() const {
+        throw std::runtime_error("GetNeARStringsVector is not implemented");
+    }
 };
 
 }  // namespace algos

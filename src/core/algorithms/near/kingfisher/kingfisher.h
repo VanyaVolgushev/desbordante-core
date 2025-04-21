@@ -10,9 +10,11 @@ namespace algos {
 class Kingfisher : public NeARDiscovery {
 private:
     double max_p_;
+    unsigned max_rules_;
     std::vector<OFeatureIndex> feature_frequency_order_;
 
-    std::string VectorToString(std::vector<FeatureIndex> const& vec);
+    template<typename T>
+    std::string VectorToString(std::vector<T> const& vec);
     double GetLowerBound1(OFeatureIndex feature);
     double GetLowerBound2(kingfisher::NodeAdress const& node_addr, OFeatureIndex cons_index,
                           bool cons_positive);

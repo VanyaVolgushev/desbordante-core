@@ -47,10 +47,4 @@ void NeARDiscovery::RegisterOptions() {
             {{sing_eq, {kTIdColumnIndex, kItemColumnIndex}}, {tab_eq, {kFirstColumnTId}}}));
 }
 
-std::vector<model::NeARStrings> const& NeARDiscovery::GetNeARStringsVector() const {
-    // TODO: insert return statement here
-    auto vec = new std::vector<model::NeARStrings>();
-    return *vec;
-}
-
 }  // namespace algos

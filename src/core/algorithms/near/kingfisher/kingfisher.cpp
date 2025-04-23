@@ -4,6 +4,7 @@
 
 #include <boost/math/distributions/hypergeometric.hpp>
 
+#include "model/table/position_list_index.h"
 #include "algorithms/near/near_discovery.h"
 #include "config/names_and_descriptions.h"
 #include "option_using.h"
@@ -83,8 +84,7 @@ double Kingfisher::GetFishersP(model::NeARIDs const& rule) {
 
     auto hasAnte = [&](std::vector<unsigned> const& ids, model::NeARIDs const& r) {
         for (auto f : r.ante)
-            if (std::find(ids.begin(), ids.end(), f) == ids.end())
-                return false;
+            if (std::find(ids.begin(), ids.end(), f) == ids.end()) return false;
         return true;
     };
     auto hasCons = [&](std::vector<unsigned> const& ids, model::NeARIDs const& r) {
@@ -92,46 +92,69 @@ double Kingfisher::GetFishersP(model::NeARIDs const& rule) {
         return r.cons_positive ? found : !found;
     };
 
-    // 1) Count contingency‐table cells a, b, c, d
-    std::size_t a=0, b=0, c=0, d=0;
-    for (auto const& [idx, tx] : transactional_data_->GetTransactions()) {
+    // Count a, b, c, d
+    std::size_t a = 0, b = 0, c = 0, d = 0;
+    for (auto const& [_, tx] : transactional_data_->GetTransactions()) {
         bool X = hasAnte(tx.GetItemsIDs(), real_rule);
         bool Y = hasCons(tx.GetItemsIDs(), real_rule);
-        if      (X && Y)  ++a;
-        else if (X && !Y) ++b;
-        else if (!X && Y) ++c;
-        else              ++d;
+        if (X && Y)
+            ++a;
+        else if (X && !Y)
+            ++b;
+        else if (!X && Y)
+            ++c;
+        else
+            ++d;
     }
 
-    // 2) Build hypergeometric_distribution
-    const unsigned N = a + b + c + d;    // total transactions
-    const unsigned r = a + c;            // successes in population
-    const unsigned n = a + b;            // draws
+    unsigned const N = a + b + c + d;
+    unsigned const r = a + c;
+    unsigned const n = a + b;
+
     using boost::math::hypergeometric_distribution;
     hypergeometric_distribution<> dist(r, n, N);
 
-    // 3) Right‐sided p‐value: P(X >= a)
-    // Option A: direct summation
-    //unsigned k_max = std::min(n, r);
-    //double p_right = 0.0;
-    //for (unsigned k = a; k <= k_max; ++k) {
-    //    p_right += boost::math::pdf(dist, k);
-    //}
-    //return p_right;
+    // Find valid lower bound for the quantile
+    int const support_min = std::max(0, int(n + r - N));
+    int const quantile = int(a) - 1;
 
-    // Option B: using the complementary CDF
-    // If a == 0, P(X ≥ 0) is trivially 1:
-    if (a == 0)
+    if (quantile < support_min) {
+        // Whole right tail = 1
         return 1.0;
-    double q = static_cast<double>(a - 1);
-    return boost::math::cdf(complement(dist, q));
+    }
+
+    return boost::math::cdf(boost::math::complement(dist, static_cast<double>(quantile)));
+}
+
+// TODO: PLI
+std::vector<FeatureIndex> Kingfisher::GetFeatureFrequency() const {
+    std::vector<std::pair<size_t, FeatureIndex>> feature_frequency;
+    feature_frequency.reserve(transactional_data_->GetUniverseSize());
+    // iota
+    for (size_t i = 0; i < transactional_data_->GetUniverseSize(); ++i) {
+        feature_frequency.emplace_back(0, i);
+    }
+    for (auto const& [_, itemset] : transactional_data_->GetTransactions()) {
+        for (auto const& item : itemset.GetItemsIDs()) {
+            ++feature_frequency[item].first;
+        }
+    }
+
+    std::sort(feature_frequency.begin(), feature_frequency.end(),
+              [](auto const& a, auto const& b) { return a.first < b.first; });
+
+    std::vector<FeatureIndex> feature_frequency_order;
+    feature_frequency_order.reserve(feature_frequency.size());
+    for (auto const& [_, index] : feature_frequency) {
+        feature_frequency_order.push_back(index);
+    }
+    return feature_frequency_order;
 }
 
 unsigned long long Kingfisher::ExecuteInternal() {
     // TODO: CALCS MINIMUM FREQUENCY AND CREATES TREE WITH ATTRS THAT SATISFY IT
-    std::cout << VectorToString(transactional_data_->GetItemUniverse()) << std::endl;
-    feature_frequency_order_ = {2, 1, 3, 0};  // hard coded for now
-    assert(feature_frequency_order_.size() == transactional_data_->GetUniverseSize());
+    std::cout << VectorToString(transactional_data_->GetItemUniverse()) << std::endl; // DEBUG
+    feature_frequency_order_ = GetFeatureFrequency();
 
     using namespace std::placeholders;
     auto tree = kingfisher::CandidatePrefixTree{
@@ -142,7 +165,8 @@ unsigned long long Kingfisher::ExecuteInternal() {
             std::bind(&Kingfisher::GetFishersP, this, _1),
             max_p_,
             max_rules_};
-    near_collection_ = tree.GetNeARIDs();
+
+    near_collection_ = tree.GetNeARIDs(feature_frequency_order_);
 
     return 0;
 }

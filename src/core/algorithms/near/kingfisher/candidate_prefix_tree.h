@@ -68,7 +68,7 @@ private:
 
 public:
 
-    std::vector<model::NeARIDs> GetNeARIDs();
+    std::vector<model::NeARIDs> GetNeARIDs(std::vector<FeatureIndex> const& frequency_order) const;
 
     CandidatePrefixTree(size_t feat_count, GetLowerBound1 lower_bound1,
                         GetLowerBound2or3 lower_bound2, GetLowerBound2or3 lower_bound3,

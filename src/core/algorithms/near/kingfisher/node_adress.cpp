@@ -78,6 +78,10 @@ OFeatureIndex NodeAdress::Back() const {
     return feat_i_vec_.back();
 }
 
+bool NodeAdress::Contains(OFeatureIndex feature) const {
+    return std::find(feat_i_vec_.begin(), feat_i_vec_.end(), feature) != feat_i_vec_.end();
+}
+
 size_t NodeAdress::Size() const {
     return feat_i_vec_.size();
 }

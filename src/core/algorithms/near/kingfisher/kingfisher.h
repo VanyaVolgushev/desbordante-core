@@ -11,7 +11,7 @@ class Kingfisher : public NeARDiscovery {
 private:
     double max_p_;
     unsigned max_rules_;
-    std::vector<OFeatureIndex> feature_frequency_order_;
+    std::vector<FeatureIndex> feature_frequency_order_;
 
     template<typename T>
     std::string VectorToString(std::vector<T> const& vec);
@@ -23,7 +23,8 @@ private:
 
     // Rule is provided with indices ordered by frequency
     double GetFishersP(model::NeARIDs const& o_rule);
-
+    
+    std::vector<FeatureIndex> GetFeatureFrequency() const;
     void RegisterOptions();
     void ResetState() override;
     void MakeExecuteOptsAvailable();

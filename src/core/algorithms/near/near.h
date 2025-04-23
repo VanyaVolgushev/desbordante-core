@@ -37,7 +37,8 @@ struct NeARIDs {
     }
 
     NeARIDs UndoOrder(std::vector<FeatureIndex> const& order) const {
-        NeARIDs reordered_near{};
+        NeARIDs reordered_near = *this;
+        reordered_near.ante.clear();
         reordered_near.ante.reserve(ante.size());
         for (FeatureIndex ante_i : ante) {
             reordered_near.ante.emplace_back(order[ante_i]);

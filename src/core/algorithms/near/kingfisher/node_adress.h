@@ -8,6 +8,7 @@
 
 namespace kingfisher {
 
+// Each node in the tree has a unique address that is an ascending sequence of OFeatureIndex-es.
 class NodeAdress {
 private:
     // TODO: replace with std::dequeue
@@ -29,6 +30,7 @@ public:
     OFeatureIndex PopFront();
     OFeatureIndex Front() const;
     OFeatureIndex Back() const;
+    bool Contains(OFeatureIndex feature) const;
 
     void EmplaceBack(OFeatureIndex i) {
         assert(i > Back());
@@ -41,4 +43,4 @@ public:
     std::string ToString() const;
 };
 
-}  // namespace algos
+}  // namespace kingfisher

@@ -37,8 +37,14 @@ void PrintAsciiTree(Node const& root, size_t feat_count) {
     PrintAsciiTreeChildren(root, feat_count, "");
 }
 
-std::vector<model::NeARIDs> CandidatePrefixTree::GetNeARIDs() {
-    return k_best_;
+// Undoes internal index order on the discovered NeARs then returns them
+std::vector<model::NeARIDs> CandidatePrefixTree::GetNeARIDs(std::vector<FeatureIndex> const& frequency_order) const {
+    std::vector<model::NeARIDs> real_nears;
+    real_nears.reserve(k_best_.size());
+    for (auto const& near : k_best_) {
+        real_nears.push_back(near.UndoOrder(frequency_order));
+    }
+    return real_nears;
 }
 
 std::optional<BranchableNode> CandidatePrefixTree::MakeBranchableFromParents(
@@ -108,12 +114,12 @@ inline void CandidatePrefixTree::TrySaveRule(model::NeARIDs&& near) {
     }
 }
 
-void CandidatePrefixTree::EvaluatePossibleRules(NodeAdress node, boost::dynamic_bitset<> p_possible,
+void CandidatePrefixTree::EvaluatePossibleRules(NodeAdress node_addr, boost::dynamic_bitset<> p_possible,
                                                 boost::dynamic_bitset<> n_possible) {
     auto processRules = [&](boost::dynamic_bitset<> const& possible, bool cons_positive) {
         for (size_t feat = 0; feat < feat_count_; ++feat) {
-            if (possible[feat]) {
-                model::NeARIDs near{node.GetExceptFeat(feat), feat, cons_positive};
+            if (possible[feat] && node_addr.Contains(feat)) {
+                model::NeARIDs near{node_addr.GetExceptFeat(feat), feat, cons_positive};
                 near.p_value = get_p_(near);
                 TrySaveRule(std::move(near));
                 // TODO: Update p_best?

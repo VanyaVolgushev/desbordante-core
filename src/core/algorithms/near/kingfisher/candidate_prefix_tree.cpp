@@ -137,19 +137,25 @@ bool CandidatePrefixTree::CheckNode(NodeAdress node_addr) {
     OFeatureIndex adds_feature = node_addr.Back();
     auto parent_adress = node_addr.GetParent();
     auto parent = GetNode(parent_adress);
-    if (!parent.has_value()) {
-        // TODO: use lapis???
-        // std::cout << "\nNode: " << node_addr.ToString() << " had no parent";
+    if (!parent.has_value()) { // Parent was pruned
         return false;
     }
 
     auto node = MakeBranchableFromParents(node_addr);
     // TODO: what if node doesnt exist?
+    if (node.Pruned()) {
+        // USE LAPIS
+        return false
+    }
+    // CHECK IF FREQUENCY < MINfr
+    // CHECK BOUNDARIES, UPDATE x_possible
     EvaluatePossibleRules(node_addr, node.value().p_possible_, node.value().n_possible_);
+    // CHECK IF ANY RULES ARE MINIMAL AND UPDATE x_possible
+    //
     auto node_ptr = std::make_shared<BranchableNode>(std::move(node.value()));
     auto node_ptr_upcasted = static_cast<std::shared_ptr<Node>>(node_ptr);
     parent.value()->AddChild(adds_feature, node_ptr_upcasted);
-
+    // USE LAPIS
     // std::cout << "\nNode: " << node_addr.ToString() << " returns true";
     return true;
 }

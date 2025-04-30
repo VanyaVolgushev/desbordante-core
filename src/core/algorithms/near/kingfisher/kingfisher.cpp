@@ -170,6 +170,7 @@ unsigned long long Kingfisher::ExecuteInternal() {
             std::bind(&Kingfisher::GetFishersP, this, _1),
             std::bind(&Kingfisher::GetItemsetFrequency, this, _1),
             max_p_,
+            0.0, // min frequency
             max_rules_};
 
     near_collection_ = tree.GetNeARIDs(feature_frequency_order_);

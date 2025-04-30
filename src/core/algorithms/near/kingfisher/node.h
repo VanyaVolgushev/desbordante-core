@@ -43,40 +43,40 @@ struct BranchableNode : public Node {
     // A 1 in a position means that the feature of that ordered index (or its negation
     // in case of n_possible) can be a consequence in this node or its children and will be
     // evaluated.
-    boost::dynamic_bitset<> p_possible_;
-    boost::dynamic_bitset<> n_possible_;
+    boost::dynamic_bitset<> p_possible;
+    boost::dynamic_bitset<> n_possible;
     // A 1 in a position means that a NodeAdress with that ordered index added is valid and a child
     // with that adress wasn't previously deleted
-    boost::dynamic_bitset<> b_possible_;
+    boost::dynamic_bitset<> b_possible;
     // Best possible target function values for each feature as the consequence
-    std::vector<double> p_best_;
-    std::vector<double> n_best_;
+    std::vector<double> p_best;
+    std::vector<double> n_best;
 
     void Intersect(BranchableNode const& other) {
-        p_possible_ &= other.p_possible_;
-        n_possible_ &= other.n_possible_;
-        std::ranges::transform(p_best_, other.p_best_, p_best_.begin(),
+        p_possible &= other.p_possible;
+        n_possible &= other.n_possible;
+        std::ranges::transform(p_best, other.p_best, p_best.begin(),
                                [](double a, double b) { return std::min(a, b); });
-        std::ranges::transform(n_best_, other.n_best_, n_best_.begin(),
+        std::ranges::transform(n_best, other.n_best, n_best.begin(),
                                [](double a, double b) { return std::min(a, b); });
     }
 
     bool Pruned() const {
-        return p_possible_.none() && n_possible_.none();
+        return p_possible.none() && n_possible.none();
     }
 
     BranchableNode(size_t feat_count, OFeatureIndex adds_feat)
         : Node(),
-          p_possible_(feat_count),
-          n_possible_(feat_count),
-          b_possible_(feat_count),
-          p_best_(feat_count, 0.0),
-          n_best_(feat_count, 0.0) {
-        if (adds_feat + 1 < b_possible_.size())
+          p_possible(feat_count),
+          n_possible(feat_count),
+          b_possible(feat_count),
+          p_best(feat_count, std::numeric_limits<double>::infinity()),
+          n_best(feat_count, std::numeric_limits<double>::infinity()) {
+        if (adds_feat + 1 < b_possible.size())
             // sets b_possible_ to 00...011...1 where the rightmost 0 has index adds_feat
-            b_possible_.set(adds_feat + 1, b_possible_.size() - adds_feat - 1, true);
-        p_possible_.flip();
-        n_possible_.flip();
+            b_possible.set(adds_feat + 1, b_possible.size() - adds_feat - 1, true);
+        p_possible.flip();
+        n_possible.flip();
     }
 };
 

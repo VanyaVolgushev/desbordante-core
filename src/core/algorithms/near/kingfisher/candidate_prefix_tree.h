@@ -49,8 +49,8 @@ private:
     GetFishersP get_p_;
     GetItemsetFrequency get_frequency_;
     double max_p_;        // threshold p-value
-    unsigned max_rules_;  // k
     double min_frequency_;
+    unsigned max_rules_;  // k
 
     std::optional<BranchableNode> MakeBranchableFromParents(
             NodeAdress adress_of_node_to_make) const;

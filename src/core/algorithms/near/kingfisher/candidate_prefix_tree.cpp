@@ -6,34 +6,54 @@
 
 namespace kingfisher {
 // Debug
-// Recursively visualize the tree, using an indentation proportional to the current depth.
-// Helper function: Recursively prints the children of a node using ASCII tree branch symbols.
+// Helper to convert a dynamic_bitset to a human-readable string (MSB first).
+inline std::string BitsetToString(boost::dynamic_bitset<> const& bs) {
+    std::string s;
+    s.reserve(bs.size());
+    for (size_t i = 0; i < bs.size(); ++i) {
+        // Print highest-index bit first
+        s.push_back(bs[bs.size() - 1 - i] ? '1' : '0');
+    }
+    return s;
+}
+
+// Recursively prints all children of a node in ASCII form, including bitsets when available.
 void PrintAsciiTreeChildren(Node const& node, size_t feat_count, std::string const& prefix) {
-    // Collect children in order of feature indices 0..feat_count_-1.
     std::vector<std::pair<OFeatureIndex, std::shared_ptr<Node>>> childNodes;
     for (OFeatureIndex i = 0; i < feat_count; ++i) {
         if (node.HasChild(i)) {
-            childNodes.push_back({i, node.children.at(i)});
+            childNodes.emplace_back(i, node.children.at(i));
         }
     }
 
-    // Iterate over collected children.
-    for (size_t i = 0; i < childNodes.size(); i++) {
-        bool isLast = (i == childNodes.size() - 1);
-        // Choose the branch connector.
+    for (size_t i = 0; i < childNodes.size(); ++i) {
+        bool isLast = (i + 1 == childNodes.size());
         std::cout << prefix << (isLast ? "└── " : "├── ");
-        // Print the feature index and node label.
-        std::cout << "[" << childNodes[i].first << "] Node" << std::endl;
-        // Adjust the prefix for the child recursion.
+        std::cout << "[" << childNodes[i].first << "] Node";
+
+        if (auto bp = dynamic_cast<BranchableNode const*>(childNodes[i].second.get())) {
+            std::cout << " [p:" << BitsetToString(bp->p_possible)
+                      << " n:" << BitsetToString(bp->n_possible) << "]";
+        }
+        std::cout << std::endl;
+
         std::string childPrefix = prefix + (isLast ? "    " : "│   ");
         PrintAsciiTreeChildren(*childNodes[i].second, feat_count, childPrefix);
     }
 }
 
+// Entry point for printing an ASCII tree from the root.
 void PrintAsciiTree(Node const& root, size_t feat_count) {
-    std::cout << "Node" << std::endl;
+    std::cout << "Node";
+    if (auto bp = dynamic_cast<BranchableNode const*>(&root)) {
+        std::cout << " [p:" << BitsetToString(bp->p_possible)
+                  << " n:" << BitsetToString(bp->n_possible) << "]";
+    }
+    std::cout << std::endl;
     PrintAsciiTreeChildren(root, feat_count, "");
 }
+
+
 
 // Undoes internal index order on the discovered NeARs then returns them
 std::vector<model::NeARIDs> CandidatePrefixTree::GetNeARIDs(
@@ -123,13 +143,13 @@ bool CandidatePrefixTree::ConsPossible(NodeAdress node_addr, OFeatureIndex cons_
         return false;
     }
     if (node_addr.Contains(cons_index) &&
-        get_frequency_(node_addr, cons_index, cons_positive) < min_frequency_) {
+        false/*get_frequency_(node_addr, cons_index, cons_positive) < min_frequency_*/) {
         return false;
     }
     // Check if lower bound requirements are satisifed
     double lower_bound;
     if (!node_addr.Contains(cons_index)) {
-        if (get_frequency_(node_addr) <= get_frequency_(cons_index, cons_positive)) {
+        if (get_frequency_(node_addr) <= 1.0/*get_frequency_(cons_index, cons_positive)*/) {
             lower_bound = lower_bound2_(node_addr, cons_index, cons_positive);
         } else {
             lower_bound = lower_bound1_(cons_index);
@@ -161,10 +181,10 @@ bool CandidatePrefixTree::CheckNode(NodeAdress node_addr) {
     auto& node = maybe_node.value();
     // Prune out impossible consequences in this node using lower bounds
     for (OFeatureIndex i = 0; i < feat_count_; i++) {
-        if (node.p_possible_[i])
-            node.p_possible_[i] = ConsPossible(node_addr, i, true, node.p_best_[i]);
-        if (node.n_possible_[i])
-            node.n_possible_[i] = ConsPossible(node_addr, i, false, node.n_best_[i]);
+        if (node.p_possible[i])
+            node.p_possible[i] = ConsPossible(node_addr, i, true, node.p_best[i]);
+        if (node.n_possible[i])
+            node.n_possible[i] = ConsPossible(node_addr, i, false, node.n_best[i]);
     }
     if (node.Pruned()) {
         return false;
@@ -172,10 +192,11 @@ bool CandidatePrefixTree::CheckNode(NodeAdress node_addr) {
     // Evaluate rules in this node and save good ones
     for (OFeatureIndex i = 0; i < feat_count_; i++) {
         if (!node_addr.Contains(i)) continue;
-        if (node.p_possible_[i]) ConsiderRule(node_addr, i, true, node.p_best_[i]);
-        if (node.n_possible_[i]) ConsiderRule(node_addr, i, false, node.n_best_[i]);
+        if (node.p_possible[i]) ConsiderRule(node_addr, i, true, node.p_best[i]);
+        if (node.n_possible[i]) ConsiderRule(node_addr, i, false, node.n_best[i]);
     }
-    // Check if a minimal rule was found
+    // Check if a minimal rule was found (DISABLED WHILE GETFREQ IS NOT IMPLEMENTED)
+    /*
     bool is_minimal = false;
     double frequency = get_frequency_(node_addr);
     is_minimal = frequency == 1.0;
@@ -194,19 +215,18 @@ bool CandidatePrefixTree::CheckNode(NodeAdress node_addr) {
             if (node_addr.Contains(i)) {
                 continue;
             }
-            node.p_possible_[i] = false;
-            node.n_possible_[i] = false;
+            node.p_possible[i] = false;
+            node.n_possible[i] = false;
         }
-        
     }
+    */
     if (node.Pruned()) {
         return false;
     }
-    for (auto parent_addr: node_addr.GetParents()) {
-        
+    for (auto parent_addr : node_addr.GetParents()) {
     }
     // Prune out consequences in parents using Lapis Philosophorum principle from paper
-    
+
     // Add the new node to tree
     auto node_ptr = std::make_shared<BranchableNode>(std::move(node));
     auto node_ptr_upcasted = static_cast<std::shared_ptr<Node>>(node_ptr);
@@ -223,8 +243,8 @@ void CandidatePrefixTree::CheckDepth1() {
             bool lb1_ok = lower_bound1_(child_feat) < max_p_;
             bool lb2_ok_pos = lower_bound2_(nodeAdress, child_feat, true) < max_p_;
             bool lb2_ok_neg = lower_bound2_(nodeAdress, child_feat, false) < max_p_;
-            branchable_node.p_possible_[child_feat] = lb1_ok && lb2_ok_pos;
-            branchable_node.n_possible_[child_feat] = lb1_ok && lb2_ok_neg;
+            branchable_node.p_possible[child_feat] = lb1_ok && lb2_ok_pos;
+            branchable_node.n_possible[child_feat] = lb1_ok && lb2_ok_neg;
         }
         if (branchable_node.Pruned()) {
             // TODO: DELETE
@@ -277,9 +297,8 @@ CandidatePrefixTree::CandidatePrefixTree(size_t feat_count_, GetLowerBound1 lowe
       get_p_(get_p),
       get_frequency_(get_frequency),
       max_p_(max_p),
-      min_frequency_(min_frequency);
-
-max_rules_(max_rules) {
+      min_frequency_(min_frequency),
+      max_rules_(max_rules) {
     for (size_t feat = 0; feat < feat_count_; ++feat) {
         auto node = BranchableNode(feat_count_, OFeatureIndex(feat));
         root_.AddChild(OFeatureIndex(feat), std::make_shared<BranchableNode>(std::move(node)));

@@ -23,6 +23,7 @@ private:
 
     // Rule is provided with indices ordered by frequency
     double GetFishersP(model::NeARIDs const& o_rule);
+    double GetItemsetFrequency(kingfisher::NodeAdress node_addr);
     
     std::vector<FeatureIndex> GetFeatureFrequency() const;
     void RegisterOptions();

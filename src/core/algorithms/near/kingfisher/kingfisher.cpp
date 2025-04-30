@@ -126,6 +126,11 @@ double Kingfisher::GetFishersP(model::NeARIDs const& rule) {
     return boost::math::cdf(boost::math::complement(dist, static_cast<double>(quantile)));
 }
 
+double Kingfisher::GetItemsetFrequency(kingfisher::NodeAdress node_addr) {
+    std::cout << node_addr.ToString();
+    return 0.0;
+}
+
 // TODO: PLI
 std::vector<FeatureIndex> Kingfisher::GetFeatureFrequency() const {
     std::vector<std::pair<size_t, FeatureIndex>> feature_frequency;
@@ -163,6 +168,7 @@ unsigned long long Kingfisher::ExecuteInternal() {
             std::bind(&Kingfisher::GetLowerBound2, this, _1, _2, _3),
             std::bind(&Kingfisher::GetLowerBound3, this, _1, _2, _3),
             std::bind(&Kingfisher::GetFishersP, this, _1),
+            std::bind(&Kingfisher::GetItemsetFrequency, this, _1),
             max_p_,
             max_rules_};
 

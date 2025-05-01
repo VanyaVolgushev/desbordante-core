@@ -48,15 +48,6 @@ private:
     void PerformBFS();
     void FinalizeTopK();
 
-    double GetFishersP(model::NeARIDs const& rule) const;
-    double GetLowerBound1(OFeatureIndex cons_index) const;
-    double GetLowerBound2(NodeAdress const& node_addr, OFeatureIndex cons_index,
-                          bool cons_positive) const;
-    double GetLowerBound3(NodeAdress const& node_addr, OFeatureIndex cons_index,
-                          bool cons_positive) const;
-    std::vector<FeatureIndex> GetFeatureFrequency() const;
-    double GetItemsetFrequency(NodeAdress node_addr) const;
-
 public:
     std::vector<model::NeARIDs> GetNeARIDs() const;
 

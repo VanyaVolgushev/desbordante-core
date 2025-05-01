@@ -6,122 +6,13 @@
 
 #include <boost/math/distributions/hypergeometric.hpp>
 
-#include "algorithms/near/kingfisher/util/print_ascii_tree.h"
-#include "algorithms/near/kingfisher/util/vector_to_string.h"
+#include "stats/get_fishers_p.h"
+#include "stats/get_frequency.h"
+#include "stats/get_lower_bounds.h"
+#include "util/print_ascii_tree.h"
+#include "util/vector_to_string.h"
 
 namespace kingfisher {
-
-// TODO: PLI
-std::vector<FeatureIndex> CandidatePrefixTree::GetFeatureFrequency() const {
-    std::vector<std::pair<size_t, FeatureIndex>> feature_frequency;
-    feature_frequency.reserve(transactional_data_->GetUniverseSize());
-    // iota
-    for (size_t i = 0; i < transactional_data_->GetUniverseSize(); ++i) {
-        feature_frequency.emplace_back(0, i);
-    }
-    for (auto const& [_, itemset] : transactional_data_->GetTransactions()) {
-        for (auto const& item : itemset.GetItemsIDs()) {
-            ++feature_frequency[item].first;
-        }
-    }
-
-    std::sort(feature_frequency.begin(), feature_frequency.end(),
-              [](auto const& a, auto const& b) { return a.first < b.first; });
-
-    std::vector<FeatureIndex> feature_frequency_order;
-    feature_frequency_order.reserve(feature_frequency.size());
-    for (auto const& [_, index] : feature_frequency) {
-        feature_frequency_order.push_back(index);
-    }
-    return feature_frequency_order;
-}
-
-
-double CandidatePrefixTree::GetLowerBound1(OFeatureIndex feature) const {
-    std::cout << "Lower bound 1 for feat " + std::to_string(feature_frequency_order_[feature]) +
-                         " is: ";
-    // double bound;
-    // std::cin >> bound;
-    return 0;
-}
-
-double CandidatePrefixTree::GetLowerBound2(kingfisher::NodeAdress const& node_addr,
-                                           OFeatureIndex cons_index, bool cons_positive) const {
-    // TODO: проверка на то что выражения под факториалами неотрицательны
-    std::cout << "Lower bound 2 for " +
-                         VectorToString(node_addr.ToFeatures(feature_frequency_order_)) + " at " +
-                         std::to_string(feature_frequency_order_[cons_index]) +
-                         " with cons positive:" + std::to_string(cons_positive) + " is: ";
-    //
-    // double bound;
-    // std::cin >> bound;
-    return 0;
-}
-
-// NodeAdress is provided with indices in order of frequency
-double CandidatePrefixTree::GetLowerBound3(kingfisher::NodeAdress const& node_addr,
-                                           OFeatureIndex cons_index, bool cons_positive) const {
-    std::cout << "Lower bound 3 for " +
-                         VectorToString(node_addr.ToFeatures(feature_frequency_order_)) + " at " +
-                         std::to_string(feature_frequency_order_[cons_index]) +
-                         " with cons positive:" + std::to_string(cons_positive) + " is: ";
-    //
-    // double bound;
-    // std::cin >> bound;
-    return 0;
-}
-
-double CandidatePrefixTree::GetFishersP(model::NeARIDs const& rule) const {
-    model::NeARIDs real_rule = rule.UndoOrder(feature_frequency_order_);
-
-    auto hasAnte = [&](std::vector<unsigned> const& ids, model::NeARIDs const& r) {
-        for (auto f : r.ante)
-            if (std::find(ids.begin(), ids.end(), f) == ids.end()) return false;
-        return true;
-    };
-    auto hasCons = [&](std::vector<unsigned> const& ids, model::NeARIDs const& r) {
-        bool found = std::find(ids.begin(), ids.end(), r.cons) != ids.end();
-        return r.cons_positive ? found : !found;
-    };
-
-    // Count a, b, c, d
-    std::size_t a = 0, b = 0, c = 0, d = 0;
-    for (auto const& [_, tx] : transactional_data_->GetTransactions()) {
-        bool X = hasAnte(tx.GetItemsIDs(), real_rule);
-        bool Y = hasCons(tx.GetItemsIDs(), real_rule);
-        if (X && Y)
-            ++a;
-        else if (X && !Y)
-            ++b;
-        else if (!X && Y)
-            ++c;
-        else
-            ++d;
-    }
-
-    unsigned const N = a + b + c + d;
-    unsigned const r = a + c;
-    unsigned const n = a + b;
-
-    using boost::math::hypergeometric_distribution;
-    hypergeometric_distribution<> dist(r, n, N);
-
-    // Find valid lower bound for the quantile
-    int const support_min = std::max(0, int(n + r - N));
-    int const quantile = int(a) - 1;
-
-    if (quantile < support_min) {
-        // Whole right tail = 1
-        return 1.0;
-    }
-
-    return boost::math::cdf(boost::math::complement(dist, static_cast<double>(quantile)));
-}
-
-double CandidatePrefixTree::GetItemsetFrequency(kingfisher::NodeAdress node_addr) const {
-    std::cout << node_addr.ToString();
-    return 0.0;
-}
 
 // Undoes internal index order on the discovered NeARs then returns them
 std::vector<model::NeARIDs> CandidatePrefixTree::GetNeARIDs() const {
@@ -189,7 +80,7 @@ void CandidatePrefixTree::AddChildrenToQueue(NodeAdress adress) {
 void CandidatePrefixTree::ConsiderRule(NodeAdress node_addr, OFeatureIndex cons_index,
                                        bool cons_positive, double parents_best) {
     model::NeARIDs near{node_addr.GetExceptFeat(cons_index), cons_index, cons_positive};
-    near.p_value = GetFishersP(near);
+    near.p_value = GetFishersP(near.UndoOrder(feature_frequency_order_), transactional_data_);
     if (near.p_value >= max_p_ || near.p_value >= parents_best) {
         return;
     }
@@ -205,7 +96,9 @@ void CandidatePrefixTree::ConsiderRule(NodeAdress node_addr, OFeatureIndex cons_
 bool CandidatePrefixTree::ConsPossible(NodeAdress node_addr, OFeatureIndex cons_index,
                                        bool cons_positive, double best_measure) const {
     // Check if frequency requirements are satisifed
-    if (!node_addr.Contains(cons_index) && GetItemsetFrequency(node_addr) < min_frequency_) {
+    if (!node_addr.Contains(cons_index) &&
+        GetItemsetFrequency(node_addr.ToFeatures(feature_frequency_order_), transactional_data_) <
+                min_frequency_) {
         return false;
     }
     if (node_addr.Contains(cons_index) &&
@@ -215,7 +108,7 @@ bool CandidatePrefixTree::ConsPossible(NodeAdress node_addr, OFeatureIndex cons_
     // Check if lower bound requirements are satisifed
     double lower_bound;
     if (!node_addr.Contains(cons_index)) {
-        if (GetItemsetFrequency(node_addr) <= 1.0 /*get_frequency_(cons_index, cons_positive)*/) {
+        if (GetItemsetFrequency(node_addr.ToFeatures(feature_frequency_order_), transactional_data_) <= 1.0 /*get_frequency_(cons_index, cons_positive)*/) {
             lower_bound = GetLowerBound2(node_addr, cons_index, cons_positive);
         } else {
             lower_bound = GetLowerBound1(cons_index);
@@ -351,11 +244,16 @@ void CandidatePrefixTree::FinalizeTopK() {
               [](auto const& A, auto const& B) { return A.p_value < B.p_value; });
 }
 
-CandidatePrefixTree::CandidatePrefixTree(size_t feat_count, double max_p, double min_frequency,
-                                         unsigned max_rules,std::shared_ptr<model::TransactionalData> transactional_data)
-    : feat_count_(feat_count), max_p_(max_p), max_rules_(max_rules), min_frequency_(min_frequency), transactional_data_(transactional_data) {
-        feature_frequency_order_ = GetFeatureFrequency();
-        for (size_t feat = 0; feat < feat_count_; ++feat) {
+CandidatePrefixTree::CandidatePrefixTree(
+        size_t feat_count, double max_p, double min_frequency, unsigned max_rules,
+        std::shared_ptr<model::TransactionalData> transactional_data)
+    : feat_count_(feat_count),
+      max_p_(max_p),
+      max_rules_(max_rules),
+      min_frequency_(min_frequency),
+      transactional_data_(transactional_data) {
+    feature_frequency_order_ = GetFeatureFrequencyOrder(transactional_data_);
+    for (size_t feat = 0; feat < feat_count_; ++feat) {
         auto node = BranchableNode(feat_count_, OFeatureIndex(feat));
         root_.AddChild(OFeatureIndex(feat), std::make_shared<BranchableNode>(std::move(node)));
     }

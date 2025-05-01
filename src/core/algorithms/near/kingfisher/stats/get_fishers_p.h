@@ -16,8 +16,8 @@ double GetFishersP(model::NeARIDs const& rule,
         return true;
     };
     auto hasCons = [&](std::vector<unsigned> const& ids, model::NeARIDs const& r) {
-        bool found = std::find(ids.begin(), ids.end(), r.cons) != ids.end();
-        return r.cons_positive ? found : !found;
+        bool found = std::find(ids.begin(), ids.end(), r.cons.feature) != ids.end();
+        return r.cons.positive ? found : !found;
     };
 
     // Count a, b, c, d

@@ -1,25 +1,34 @@
 #pragma once
 
 #include <cstddef>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "types.h"
-#include <iomanip>
 
 namespace model {
 
 struct NeARIDs {
     std::vector<FeatureIndex> ante;
-    FeatureIndex cons;
-    bool cons_positive = true;
+    Consequence cons;
     double p_value = -1.0;
 
     NeARIDs() = default;
 
-    NeARIDs(std::vector<FeatureIndex> ante, FeatureIndex cons, bool cons_positive)
-        : ante(std::move(ante)), cons(std::move(cons)), cons_positive(cons_positive) {}
+    NeARIDs(std::vector<FeatureIndex> ante, Consequence cons)
+        : ante(std::move(ante)), cons(std::move(cons)) {}
+
+    NeARIDs(std::vector<OFeatureIndex> ante, OConsequence cons,
+            std::vector<FeatureIndex> const& order) {
+        this->ante.reserve(ante.size());
+        for (OFeatureIndex ante_i : ante) {
+            this->ante.emplace_back(order[ante_i]);
+        }
+        this->cons.feature = order[cons.feature];
+        this->cons.positive = cons.positive;
+    }
 
     std::string ToString() const {
         std::ostringstream oss;
@@ -31,21 +40,9 @@ struct NeARIDs {
             if (i + 1 < ante.size()) oss << ", ";
         }
         oss << "} -> ";
-        if (!cons_positive) oss << "not ";
-        oss << cons;
+        if (!cons.positive) oss << "not ";
+        oss << cons.feature;
         return oss.str();
-    }
-
-    NeARIDs UndoOrder(std::vector<FeatureIndex> const& order) const {
-        NeARIDs reordered_near = *this;
-        reordered_near.ante.clear();
-        reordered_near.ante.reserve(ante.size());
-        for (FeatureIndex ante_i : ante) {
-            reordered_near.ante.emplace_back(order[ante_i]);
-        }
-        reordered_near.cons = order[cons];
-        reordered_near.cons_positive = cons_positive;
-        return reordered_near;
     }
 };
 

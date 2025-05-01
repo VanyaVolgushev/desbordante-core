@@ -38,9 +38,9 @@ private:
     std::optional<Node const* const> GetNode(NodeAdress adress) const;
 
     void AddChildrenToQueue(NodeAdress parent);
-    void ConsiderRule(NodeAdress node, OFeatureIndex cons_index, bool cons_positive,
+    void ConsiderRule(NodeAdress node, OConsequence cons,
                       double parents_best);
-    bool ConsPossible(NodeAdress node_addr, OFeatureIndex cons_index, bool cons_positive,
+    bool ConsPossible(NodeAdress node_addr, OConsequence cons,
                       double best_measure) const;
     bool CheckNode(NodeAdress node);
     void CheckDepth1();

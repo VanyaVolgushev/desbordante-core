@@ -11,7 +11,7 @@
 namespace kingfisher {
 
 std::vector<FeatureIndex> GetFeatureFrequencyOrder(
-        std::shared_ptr<model::TransactionalData> transactional_data) {
+        model::TransactionalData const* transactional_data) {
     std::vector<std::pair<size_t, FeatureIndex>> feature_frequency;
     feature_frequency.reserve(transactional_data->GetUniverseSize());
     // iota
@@ -36,15 +36,14 @@ std::vector<FeatureIndex> GetFeatureFrequencyOrder(
 }
 
 // TODO: slow?
-double GetItemsetFrequency(std::vector<FeatureIndex> const& itemset,
-                           std::shared_ptr<model::TransactionalData> transactional_data) {
+double GetItemsetOccurences(std::vector<FeatureIndex> const& itemset,
+                            model::TransactionalData const* transactional_data) {
     size_t occurences = 0;
     for (auto const& [_, transaction] : transactional_data->GetTransactions()) {
         bool found = true;
         for (auto const& item : itemset) {
-            auto const& transaction_ids = transaction.GetItemsIDs();
-            if (std::find(transaction_ids.begin(), transaction_ids.end(), item) ==
-                transaction_ids.end()) {
+            auto const& item_ids = transaction.GetItemsIDs();
+            if (std::find(item_ids.begin(), item_ids.end(), item) == item_ids.end()) {
                 found = false;
                 break;
             }
@@ -53,7 +52,95 @@ double GetItemsetFrequency(std::vector<FeatureIndex> const& itemset,
             ++occurences;
         }
     }
-    return static_cast<double>(occurences) / transactional_data->GetTransactions().size();
+    return occurences;
 }
 
+// TODO: slow?
+double GetItemsetFrequency(std::vector<FeatureIndex> const& itemset,
+                           model::TransactionalData const* transactional_data) {
+    return static_cast<double>(GetItemsetOccurences(itemset, transactional_data)) /
+           transactional_data->GetTransactions().size();
+}
+
+// TODO: slow?
+double GetNegativeItemsetOccurences(std::vector<FeatureIndex> const& itemset,
+                                    model::TransactionalData const* transactional_data) {
+    size_t occurences = 0;
+    for (auto const& [_, transaction] : transactional_data->GetTransactions()) {
+        bool found_none = true;
+        for (auto const& item : itemset) {
+            auto const& item_ids = transaction.GetItemsIDs();
+            if (std::find(item_ids.begin(), item_ids.end(), item) != item_ids.end()) {
+                found_none = false;
+                break;
+            }
+        }
+        if (found_none) {
+            ++occurences;
+        }
+    }
+    return occurences;
+}
+
+// TODO: slow?
+double GetNegativeItemsetFrequency(std::vector<FeatureIndex> const& itemset,
+                                   model::TransactionalData const* transactional_data) {
+    return static_cast<double>(GetNegativeItemsetOccurences(itemset, transactional_data)) /
+           transactional_data->GetTransactions().size();
+}
+
+// Count rule occurrences: antecedent items must be present; if consequent positive, it must be
+// present, otherwise absent.
+double GetRuleOccurences(model::NeARIDs const& near,
+                         model::TransactionalData const* transactional_data) {
+    size_t occurrences = 0;
+    for (auto const& [_, transaction] : transactional_data->GetTransactions()) {
+        auto const& item_ids = transaction.GetItemsIDs();
+        // Check antecedent items presence
+        bool ante_present = true;
+        for (auto const& item : near.ante) {
+            if (std::find(item_ids.begin(), item_ids.end(), item) == item_ids.end()) {
+                ante_present = false;
+                break;
+            }
+        }
+        if (!ante_present) {
+            continue;
+        }
+        // Check consequent
+        bool cons_in_tx =
+                (std::find(item_ids.begin(), item_ids.end(), near.cons.feature) != item_ids.end());
+        if ((near.cons.positive && cons_in_tx) || (!near.cons.positive && !cons_in_tx)) {
+            ++occurrences;
+        }
+    }
+    return occurrences;
+}
+
+// Count occurrences where antecedent items are absent; consequent logic as in GetRuleOccurences.
+double GetNegRuleOccurences(model::NeARIDs const& near,
+                            model::TransactionalData const* transactional_data) {
+    size_t occurrences = 0;
+    for (auto const& [_, transaction] : transactional_data->GetTransactions()) {
+        auto const& item_ids = transaction.GetItemsIDs();
+        // Check antecedent items absence
+        bool ante_absent = true;
+        for (auto const& item : near.ante) {
+            if (std::find(item_ids.begin(), item_ids.end(), item) != item_ids.end()) {
+                ante_absent = false;
+                break;
+            }
+        }
+        if (!ante_absent) {
+            continue;
+        }
+        // Check consequent
+        bool cons_in_tx =
+                (std::find(item_ids.begin(), item_ids.end(), near.cons.feature) != item_ids.end());
+        if ((near.cons.positive && cons_in_tx) || (!near.cons.positive && !cons_in_tx)) {
+            ++occurrences;
+        }
+    }
+    return occurrences;
+}
 }  // namespace kingfisher

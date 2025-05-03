@@ -83,7 +83,6 @@ CSVConfig const kRulesSynthetic2 =
         CreateCsvConfig("transactional_data/rules-synthetic-2.csv", ',', false);
 CSVConfig const kRulesKaggleRows =
         CreateCsvConfig("transactional_data/rules-kaggle-rows.csv", ',', true);
-CSVConfig const kTestNeAR1 = CreateCsvConfig("transactional_data/TestNeAR1.csv", ',', false);
 CSVConfig const kTennis = CreateCsvConfig("cfd_data/tennis.csv", ',', true);
 CSVConfig const kMushroom = CreateCsvConfig("cfd_data/mushroom.csv", ',', true);
 CSVConfig const kTestDataStats = CreateCsvConfig("TestDataStats.csv", ',', false);
@@ -133,4 +132,7 @@ CSVConfig const kTestDC = CreateCsvConfig("TestDC.csv", ',', true);
 CSVConfig const kTestDC1 = CreateCsvConfig("TestDC1.csv", ',', true);
 CSVConfig const kTestDC2 = CreateCsvConfig("TestDC2.csv", ',', true);
 CSVConfig const kTestDC3 = CreateCsvConfig("TestDC3.csv", ',', true);
+CSVConfig const kTestNeAR1 = CreateCsvConfig("transactional_data/TestNeAR1.csv", ',', false);
+CSVConfig const kAccidents = CreateCsvConfig("transactional_data/accidents.csv", ' ', false);
+CSVConfig const kTestNeARChess = CreateCsvConfig("transactional_data/TestNeAR_Chess.csv", ' ', false);
 }  // namespace tests

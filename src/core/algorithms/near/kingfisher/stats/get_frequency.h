@@ -7,7 +7,7 @@
 #include "algorithms/near/types.h"
 #include "model/transaction/transactional_data.h"
 
-// TODO: PLI
+// Optimization possible: use PLI and cache frequencies
 namespace kingfisher {
 
 std::vector<FeatureIndex> GetFeatureFrequencyOrder(
@@ -89,6 +89,15 @@ double GetNegativeItemsetFrequency(std::vector<FeatureIndex> const& itemset,
            transactional_data->GetTransactions().size();
 }
 
+// TODO: slow?
+double GetConsMatches(Consequence cons, model::TransactionalData const* transactional_data) {
+    if(cons.positive) {
+        return GetItemsetOccurences({cons.feature}, transactional_data);
+    } else {
+        return GetNegativeItemsetOccurences({cons.feature}, transactional_data);
+    }
+}
+
 // Count rule occurrences: antecedent items must be present; if consequent positive, it must be
 // present, otherwise absent.
 double GetRuleOccurences(model::NeARIDs const& near,
@@ -115,6 +124,12 @@ double GetRuleOccurences(model::NeARIDs const& near,
         }
     }
     return occurrences;
+}
+
+double GetRuleFrequency(model::NeARIDs const& near,
+                        model::TransactionalData const* transactional_data) {
+    return static_cast<double>(GetRuleOccurences(near, transactional_data)) /
+           transactional_data->GetTransactions().size();
 }
 
 // Count occurrences where antecedent items are absent; consequent logic as in GetRuleOccurences.

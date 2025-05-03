@@ -21,7 +21,6 @@ std::vector<OFeatureIndex> NodeAdress::Get() const {
     return feat_i_vec_;
 }
 
-// TODO: test this function
 std::vector<NodeAdress> NodeAdress::GetChildren(size_t feat_count) const {
     auto possible_branches = std::vector<OFeatureIndex>();
     size_t branch_count = feat_count - Back() - 1;

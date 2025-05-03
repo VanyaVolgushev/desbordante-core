@@ -44,7 +44,8 @@ private:
                       double best_measure) const;
     bool CheckNode(NodeAdress node);
     void CheckDepth1();
-    void Propagate(NodeAdress node);
+    void LapisPropagation(NodeAdress node);
+    void Propagate(NodeAdress node_addr, OFeatureIndex feature);
     void PerformBFS();
     void FinalizeTopK();
 

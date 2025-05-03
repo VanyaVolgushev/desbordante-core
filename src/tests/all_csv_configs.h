@@ -112,4 +112,6 @@ extern CSVConfig const kTestDC1;
 extern CSVConfig const kTestDC2;
 extern CSVConfig const kTestDC3;
 extern CSVConfig const kTestNeAR1;
+extern CSVConfig const kTestNeARAccidents;
+extern CSVConfig const kTestNeARChess;
 }  // namespace tests

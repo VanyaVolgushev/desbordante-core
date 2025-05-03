@@ -11,7 +11,6 @@
 namespace kingfisher {
 
 double GetLowerBound1(FeatureIndex feature, model::TransactionalData const* transactional_data) {
-    // TODO: replace with reuse of GetItemsetFrequency
     unsigned occurences = GetItemsetOccurences({feature}, transactional_data);
 
     // Fast approximation of k! * (n-k)! / n!
@@ -43,13 +42,13 @@ double GetLowerBound2(model::NeARIDs const& near,
     size_t num_rows = transactional_data->GetNumTransactions();
 
     auto lower_bound_2_factorial_relation = [](unsigned ante_occur, unsigned neg_ante_occur,
-                                               unsigned cons_occur, unsigned num_rows) -> double {
-        if (cons_occur < ante_occur) {
+                                               unsigned cons_matches, unsigned num_rows) -> double {
+        if (cons_matches < ante_occur) {
             throw std::invalid_argument("cons_occur must be >= ante_occur");
         }
 
-        double log_result = std::lgamma(neg_ante_occur + 1) + std::lgamma(cons_occur + 1) -
-                            std::lgamma(num_rows + 1) - std::lgamma(cons_occur - ante_occur + 1);
+        double log_result = std::lgamma(neg_ante_occur + 1) + std::lgamma(cons_matches + 1) -
+                            std::lgamma(num_rows + 1) - std::lgamma(cons_matches - ante_occur + 1);
 
         return std::exp(log_result);
     };

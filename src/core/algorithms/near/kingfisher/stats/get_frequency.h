@@ -11,25 +11,28 @@
 namespace kingfisher {
 
 std::vector<FeatureIndex> GetFeatureFrequencyOrder(
-        model::TransactionalData const* transactional_data) {
-    std::vector<std::pair<size_t, FeatureIndex>> feature_frequency;
-    feature_frequency.reserve(transactional_data->GetUniverseSize());
+        double min_occurences, model::TransactionalData const* transactional_data) {
+    std::vector<std::pair<size_t, FeatureIndex>> feature_occurences;
+    feature_occurences.reserve(transactional_data->GetUniverseSize());
     // iota
     for (size_t i = 0; i < transactional_data->GetUniverseSize(); ++i) {
-        feature_frequency.emplace_back(0, i);
+        feature_occurences.emplace_back(0, i);
     }
     for (auto const& [_, itemset] : transactional_data->GetTransactions()) {
         for (auto const& item : itemset.GetItemsIDs()) {
-            ++feature_frequency[item].first;
+            ++feature_occurences[item].first;
         }
     }
 
-    std::sort(feature_frequency.begin(), feature_frequency.end(),
+    std::sort(feature_occurences.begin(), feature_occurences.end(),
               [](auto const& a, auto const& b) { return a.first < b.first; });
 
     std::vector<FeatureIndex> feature_frequency_order;
-    feature_frequency_order.reserve(feature_frequency.size());
-    for (auto const& [_, index] : feature_frequency) {
+    feature_frequency_order.reserve(feature_occurences.size());
+    for (auto const& [occurences, index] : feature_occurences) {
+        if (occurences < min_occurences) {
+            break;
+        }
         feature_frequency_order.push_back(index);
     }
     return feature_frequency_order;
@@ -91,7 +94,7 @@ double GetNegativeItemsetFrequency(std::vector<FeatureIndex> const& itemset,
 
 // TODO: slow?
 double GetConsMatches(Consequence cons, model::TransactionalData const* transactional_data) {
-    if(cons.positive) {
+    if (cons.positive) {
         return GetItemsetOccurences({cons.feature}, transactional_data);
     } else {
         return GetNegativeItemsetOccurences({cons.feature}, transactional_data);
@@ -158,4 +161,18 @@ double GetNegRuleOccurences(model::NeARIDs const& near,
     }
     return occurrences;
 }
+
+// Gets the minimum frequency a feature must have to be able to appear in significant rules
+size_t GetMinOccurences(double max_p, model::TransactionalData const* transactional_data) {
+    size_t row_count = transactional_data->GetNumTransactions();
+    for (size_t i = 1; i < transactional_data->GetNumTransactions() / 2 + 1; i++) {
+        double lb1gamma = std::lgamma(i) + std::lgamma(row_count - i) - std::lgamma(row_count) -
+                          std::lgamma(max_p);
+        if (lb1gamma > 0.0) {
+            return i;
+        }
+    }
+    return 0;
+}
+
 }  // namespace kingfisher

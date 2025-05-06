@@ -70,7 +70,7 @@ TEST_F(NeARAlgorithmTest, AccidentsDataset) {
 */
 
 TEST_F(NeARAlgorithmTest, ChessDataset) {
-    auto algorithm = CreateAlgorithmInstance(kTestNeARChess, 1.2e-8, 1000, false);
+    auto algorithm = CreateAlgorithmInstance(kTestNeARChess, 1.0, 100, false);
     algorithm->Execute();
     auto const rules = algorithm->GetNeARIDsVector();
     std::cout << VectorToString(rules);

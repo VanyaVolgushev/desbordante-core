@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "model/transaction/transactional_data.h"
 #include "algorithms/near/near.h"
 #include "algorithms/near/types.h"
+#include "model/transaction/transactional_data.h"
 #include "node.h"
 #include "node_adress.h"
 
@@ -15,7 +15,7 @@ namespace kingfisher {
 class CandidatePrefixTree {
 private:
     RoutingNode root_{true};
-    size_t feat_count_;
+    size_t ofeat_count_;
     std::vector<OFeatureIndex> feature_frequency_order_;
     std::queue<NodeAdress> bfs_queue_;
     std::vector<model::NeARIDs> k_best_;
@@ -25,11 +25,12 @@ private:
             return a.p_value > b.p_value;
         }
     };
+
     std::priority_queue<model::NeARIDs, std::vector<model::NeARIDs>, MinCmp> topk_queue_;
 
     double max_p_;
     unsigned max_rules_;
-    double min_frequency_;
+    double min_occurences_;
     std::shared_ptr<model::TransactionalData> transactional_data_;
 
     std::optional<BranchableNode> MakeBranchableFromParents(
@@ -38,21 +39,20 @@ private:
     std::optional<Node const* const> GetNode(NodeAdress adress) const;
 
     void AddChildrenToQueue(NodeAdress parent);
-    void ConsiderRule(NodeAdress node, OConsequence cons,
-                      double parents_best);
-    bool ConsPossible(NodeAdress node_addr, OConsequence cons,
-                      double best_measure) const;
+    void ConsiderRule(model::NeARIDs rule, BranchableNode& in_node,
+        double parents_best);
+    bool ConsPossible(NodeAdress node_addr, OConsequence cons, double best_measure) const;
     bool CheckNode(NodeAdress node);
     void CheckDepth1();
     void LapisPropagation(NodeAdress node);
-    void Propagate(NodeAdress node_addr, OFeatureIndex feature);
     void PerformBFS();
     void FinalizeTopK();
 
 public:
     std::vector<model::NeARIDs> GetNeARIDs() const;
 
-    CandidatePrefixTree(size_t feat_count, double max_p, double min_frequency, unsigned max_rules, std::shared_ptr<model::TransactionalData> transactional_data);
+    CandidatePrefixTree(double max_p, unsigned max_rules,
+                        std::shared_ptr<model::TransactionalData> transactional_data);
     ~CandidatePrefixTree() = default;
 };
 

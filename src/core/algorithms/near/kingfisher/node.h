@@ -2,10 +2,10 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <map>
 #include <memory>
 #include <ranges>
 #include <vector>
-#include <map>
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -13,12 +13,9 @@
 
 namespace kingfisher {
 
-class BranchableNode;
-// TODO: remove underscores from names
 // Represents a node of the branch-and-bound search tree.
 struct Node {
-    std::map<OFeatureIndex, std::shared_ptr<Node>>
-            children;
+    std::map<OFeatureIndex, std::shared_ptr<Node>> children;
 
     bool HasChild(OFeatureIndex feat_index) const {
         return children.contains(feat_index);
@@ -36,10 +33,6 @@ struct Node {
         children.emplace(feat_index, child_ptr);
     }
 
-    Node() = default;
-};
-
-struct BranchableNode : public Node {
     // A 1 in a position means that the feature of that ordered index (or its negation
     // in case of n_possible) can be a consequence in this node or its children and will be
     // evaluated.
@@ -52,7 +45,7 @@ struct BranchableNode : public Node {
     std::vector<double> p_best;
     std::vector<double> n_best;
 
-    void Intersect(BranchableNode const& other) {
+    void Intersect(Node const& other) {
         p_possible &= other.p_possible;
         n_possible &= other.n_possible;
         std::ranges::transform(p_best, other.p_best, p_best.begin(),
@@ -65,9 +58,9 @@ struct BranchableNode : public Node {
         return p_possible.none() && n_possible.none();
     }
 
-    BranchableNode(size_t feat_count, OFeatureIndex adds_feat)
-        : Node(),
-          p_possible(feat_count),
+    // TODO: remove b_possible
+    Node(size_t feat_count, OFeatureIndex adds_feat)
+        : p_possible(feat_count),
           n_possible(feat_count),
           b_possible(feat_count),
           p_best(feat_count, std::numeric_limits<double>::infinity()),
@@ -78,20 +71,8 @@ struct BranchableNode : public Node {
         p_possible.flip();
         n_possible.flip();
     }
+
+    Node() = default;
 };
 
-struct RoutingNode : public Node {
-    bool isRoot_;
-
-    RoutingNode(bool isRoot = false) : isRoot_(isRoot) {}
-
-    void AddChild(OFeatureIndex feat_index, std::shared_ptr<Node> child_ptr) override {
-        if (isRoot_) {
-            Node::AddChild(feat_index, child_ptr);
-        } else {
-            throw std::logic_error("Trying to add child to non-root RoutingNode.");
-        }
-    }
-};
-
-}  // namespace algos
+}  // namespace kingfisher

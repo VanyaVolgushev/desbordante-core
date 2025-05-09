@@ -18,18 +18,17 @@ std::vector<model::NeARIDs> CandidatePrefixTree::GetNeARIDs() const {
     return k_best_;
 }
 
-std::optional<BranchableNode> CandidatePrefixTree::MakeBranchableFromParents(
+std::optional<Node> CandidatePrefixTree::MakeNodeFromParents(
         NodeAdress adress_of_node_to_make) const {
-    BranchableNode new_node{ofeat_count_, adress_of_node_to_make.Back()};
+    Node new_node{ofeat_count_, adress_of_node_to_make.Back()};
     auto const parent_adresses = adress_of_node_to_make.GetParents();
 
     for (auto const& parent_adress : parent_adresses) {
-        std::optional<Node const* const> parent = GetNode(parent_adress);
+        std::optional<Node const*> parent = GetNode(parent_adress);
         if (!parent.has_value()) {
             return {};
         }
-        // Parent can never be a RoutingNode
-        new_node.Intersect(dynamic_cast<BranchableNode const&>(*parent.value()));
+        new_node.Intersect(*parent.value());
         if (new_node.Pruned()) {
             return {};
         }
@@ -38,7 +37,7 @@ std::optional<BranchableNode> CandidatePrefixTree::MakeBranchableFromParents(
     return new_node;
 }
 
-std::optional<Node* const> CandidatePrefixTree::GetNode(NodeAdress adress) {
+std::optional<Node*> CandidatePrefixTree::GetNode(NodeAdress adress) {
     Node* current = &root_;
     while (!adress.Empty()) {
         auto next_index = adress.PopFront();
@@ -51,9 +50,8 @@ std::optional<Node* const> CandidatePrefixTree::GetNode(NodeAdress adress) {
     return current;
 }
 
-std::optional<Node const* const> CandidatePrefixTree::GetNode(NodeAdress adress) const {
-    Node const* current =
-            &root_;  // We have to use a pointer here because references can't be reseated
+std::optional<Node const*> CandidatePrefixTree::GetNode(NodeAdress adress) const {
+    Node const* current = &root_;
     while (!adress.Empty()) {
         auto next_index = adress.PopFront();
         if (current->HasChild(next_index)) {
@@ -71,8 +69,7 @@ void CandidatePrefixTree::AddChildrenToQueue(NodeAdress adress) {
     }
 }
 
-void CandidatePrefixTree::ConsiderRule(model::NeARIDs near, BranchableNode& in_node,
-                                       double parents_best) {
+void CandidatePrefixTree::ConsiderRule(model::NeARIDs near, Node& in_node, double parents_best) {
     near.p_value = GetFishersP(near, transactional_data_);
     if (near.p_value >= max_p_ || near.p_value >= parents_best) {
         return;
@@ -90,8 +87,6 @@ void CandidatePrefixTree::ConsiderRule(model::NeARIDs near, BranchableNode& in_n
 
 bool CandidatePrefixTree::ConsPossible(NodeAdress node_addr, OConsequence cons,
                                        double best_measure) const {
-    // Check if frequency requirements are satisifed
-    // Optimization possible: reduce number of repeated GetFrequency calls
     if (!node_addr.Contains(cons.feature) &&
         GetItemsetFrequency(node_addr.ToFeatures(feature_frequency_order_),
                             transactional_data_.get()) < min_occurences_) {
@@ -103,7 +98,6 @@ bool CandidatePrefixTree::ConsPossible(NodeAdress node_addr, OConsequence cons,
         GetRuleFrequency(corresponding_near, transactional_data_.get()) < min_occurences_) {
         return false;
     }
-    // Check if lower bound requirements are satisifed
     double lower_bound;
 
     if (!node_addr.Contains(cons.feature)) {
@@ -135,10 +129,8 @@ bool CandidatePrefixTree::CheckNode(NodeAdress node_addr) {
         return false;
     }
     auto parent_ptr = maybe_parent_ptr.value();
-    auto parent_ptr_downcasted =
-            static_cast<BranchableNode*>(parent_ptr);  // Parent can never be a RoutingNode
 
-    auto maybe_node = MakeBranchableFromParents(node_addr);
+    auto maybe_node = MakeNodeFromParents(node_addr);
     if (!maybe_node.has_value()) {  // Intersection empty or one of parents was pruned
         return false;
     }
@@ -157,11 +149,11 @@ bool CandidatePrefixTree::CheckNode(NodeAdress node_addr) {
     for (OFeatureIndex i: node_addr.Get()) {
         if (node.p_possible[i]) {
             model::NeARIDs p_near{node_addr.GetExceptFeat(i), {i, true}, feature_frequency_order_};
-            ConsiderRule(p_near, node, parent_ptr_downcasted->p_best[i]);
+            ConsiderRule(p_near, node, parent_ptr->p_best[i]);
         }
         if (node.n_possible[i]) {
             model::NeARIDs n_near{node_addr.GetExceptFeat(i), {i, false}, feature_frequency_order_};
-            ConsiderRule(n_near, node, parent_ptr_downcasted->n_best[i]);
+            ConsiderRule(n_near, node, parent_ptr->n_best[i]);
         }
     }
 
@@ -217,30 +209,23 @@ bool CandidatePrefixTree::CheckNode(NodeAdress node_addr) {
             // By Lapis Philosophorum (Propagation):
             auto maybe_parent_ptr = GetNode(parent_adress);
             if (maybe_parent_ptr.has_value()) {
-                // Parents at 1 level above should always be BranchableNodes
-                auto parent_ptr_downcasted = static_cast<BranchableNode*>(maybe_parent_ptr.value());
-                parent_ptr_downcasted->p_possible[feat] = false;
-                parent_ptr_downcasted->n_possible[feat] = false;
+                auto parent_ptr = maybe_parent_ptr.value();
+                parent_ptr->p_possible[feat] = false;
+                parent_ptr->n_possible[feat] = false;
             }
         }
     }
-
     // Node wasn't pruned: add it to tree
-    auto node_ptr = std::make_shared<BranchableNode>(std::move(node));
-    auto node_ptr_upcasted = static_cast<std::shared_ptr<Node>>(node_ptr);
-    parent_ptr->AddChild(adds_feature, node_ptr_upcasted);
+    auto node_ptr = std::make_shared<Node>(std::move(node));
+    parent_ptr->AddChild(adds_feature, node_ptr);
     return true;
 }
 
 void CandidatePrefixTree::CheckDepth1() {
     for (auto& [node_feat, node_ptr] : root_.children) {
-        std::shared_ptr<BranchableNode> node_ptr_downcasted =
-                std::dynamic_pointer_cast<BranchableNode>(node_ptr);
         for (OFeatureIndex i = 0; i < ofeat_count_; i++) {
-            node_ptr_downcasted->p_possible[i] =
-                    ConsPossible({node_feat}, {i, true}, node_ptr_downcasted->p_best[i]);
-            node_ptr_downcasted->n_possible[i] =
-                    ConsPossible({node_feat}, {i, false}, node_ptr_downcasted->n_best[i]);
+            node_ptr->p_possible[i] = ConsPossible({node_feat}, {i, true}, node_ptr->p_best[i]);
+            node_ptr->n_possible[i] = ConsPossible({node_feat}, {i, false}, node_ptr->n_best[i]);
         }
     }
 }
@@ -251,10 +236,9 @@ void CandidatePrefixTree::LapisPropagation(NodeAdress node_addr) {
         auto parent_adress = NodeAdress(node_addr.GetExcept(except_feat));
         auto maybe_parent_ptr = GetNode(parent_adress);
         if (maybe_parent_ptr.has_value()) {
-            // Parents at 1 level above should always be BranchableNodes
-            auto parent_ptr_downcasted = static_cast<BranchableNode*>(maybe_parent_ptr.value());
-            parent_ptr_downcasted->p_possible[except_feat] = false;
-            parent_ptr_downcasted->n_possible[except_feat] = false;
+            auto parent_ptr = maybe_parent_ptr.value();
+            parent_ptr->p_possible[except_feat] = false;
+            parent_ptr->n_possible[except_feat] = false;
         }
     }
 }
@@ -271,7 +255,7 @@ void CandidatePrefixTree::PerformBFS() {
         AddChildrenToQueue(bfs_queue_.front());
         std::cout << "\n_____checked " + bfs_queue_.front().ToString() + "________\n";
         bfs_queue_.pop();
-        // PrintAsciiTree(root_, feat_count_); // DEBUG
+        PrintAsciiTree(root_, feature_frequency_order_.size()); // DEBUG
     }
 }
 
@@ -291,12 +275,11 @@ CandidatePrefixTree::CandidatePrefixTree(
         std::shared_ptr<model::TransactionalData> transactional_data)
     : max_p_(max_p), max_rules_(max_rules), transactional_data_(transactional_data) {
     min_occurences_ = GetMinOccurences(max_p_, transactional_data_.get());
-    feature_frequency_order_ = GetFeatureFrequencyOrder(
-            min_occurences_, transactional_data_.get());  // TODO: change GetFreq signature
+    feature_frequency_order_ = GetFeatureFrequencyOrder(min_occurences_, transactional_data_.get());
     ofeat_count_ = feature_frequency_order_.size();
     for (size_t feat = 0; feat < ofeat_count_; ++feat) {
-        auto node = BranchableNode(ofeat_count_, OFeatureIndex(feat));
-        root_.AddChild(OFeatureIndex(feat), std::make_shared<BranchableNode>(std::move(node)));
+        auto node = Node(ofeat_count_, OFeatureIndex(feat));
+        root_.AddChild(OFeatureIndex(feat), std::make_shared<Node>(std::move(node)));
     }
     CheckDepth1();
     PerformBFS();

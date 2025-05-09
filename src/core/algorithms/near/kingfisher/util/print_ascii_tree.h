@@ -35,10 +35,10 @@ void PrintAsciiTreeChildren(Node const& node, size_t feat_count, std::string con
         std::cout << prefix << (isLast ? "└── " : "├── ");
         std::cout << "[" << childNodes[i].first << "] Node";
 
-        if (auto bp = dynamic_cast<BranchableNode const*>(childNodes[i].second.get())) {
-            std::cout << " [p:" << BitsetToString(bp->p_possible)
-                      << " n:" << BitsetToString(bp->n_possible) << "]";
-        }
+        auto bp = childNodes[i].second.get();
+        std::cout << " [p:" << BitsetToString(bp->p_possible)
+                  << " n:" << BitsetToString(bp->n_possible) << "]";
+
         std::cout << std::endl;
 
         std::string childPrefix = prefix + (isLast ? "    " : "│   ");
@@ -49,10 +49,8 @@ void PrintAsciiTreeChildren(Node const& node, size_t feat_count, std::string con
 // Entry point for printing an ASCII tree from the root.
 void PrintAsciiTree(Node const& root, size_t feat_count) {
     std::cout << "Node";
-    if (auto bp = dynamic_cast<BranchableNode const*>(&root)) {
-        std::cout << " [p:" << BitsetToString(bp->p_possible)
-                  << " n:" << BitsetToString(bp->n_possible) << "]";
-    }
+    std::cout << " [p:" << BitsetToString(root.p_possible)
+              << " n:" << BitsetToString(root.n_possible) << "]";
     std::cout << std::endl;
     PrintAsciiTreeChildren(root, feat_count, "");
 }

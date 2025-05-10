@@ -37,7 +37,7 @@ std::optional<Node> CandidatePrefixTree::MakeNodeFromParents(
     return new_node;
 }
 
-std::optional<Node*> CandidatePrefixTree::GetNode(NodeAdress adress) {
+std::optional<Node* const> CandidatePrefixTree::GetNode(NodeAdress adress) {
     Node* current = &root_;
     while (!adress.Empty()) {
         auto next_index = adress.PopFront();
@@ -50,7 +50,7 @@ std::optional<Node*> CandidatePrefixTree::GetNode(NodeAdress adress) {
     return current;
 }
 
-std::optional<Node const*> CandidatePrefixTree::GetNode(NodeAdress adress) const {
+std::optional<Node const* const> CandidatePrefixTree::GetNode(NodeAdress adress) const {
     Node const* current = &root_;
     while (!adress.Empty()) {
         auto next_index = adress.PopFront();
@@ -146,7 +146,7 @@ bool CandidatePrefixTree::CheckNode(NodeAdress node_addr) {
         return false;
     }
     // Evaluate rules in this node and save good ones
-    for (OFeatureIndex i: node_addr.Get()) {
+    for (OFeatureIndex i : node_addr.Get()) {
         if (node.p_possible[i]) {
             model::NeARIDs p_near{node_addr.GetExceptFeat(i), {i, true}, feature_frequency_order_};
             ConsiderRule(p_near, node, parent_ptr->p_best[i]);
@@ -255,7 +255,7 @@ void CandidatePrefixTree::PerformBFS() {
         AddChildrenToQueue(bfs_queue_.front());
         std::cout << "\n_____checked " + bfs_queue_.front().ToString() + "________\n";
         bfs_queue_.pop();
-        PrintAsciiTree(root_, feature_frequency_order_.size()); // DEBUG
+        PrintAsciiTree(root_, feature_frequency_order_.size());  // DEBUG
     }
 }
 

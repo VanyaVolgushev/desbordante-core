@@ -35,8 +35,8 @@ private:
 
     std::optional<Node> MakeNodeFromParents(
             NodeAdress adress_of_node_to_make) const;
-    std::optional<Node*> GetNode(NodeAdress adress);
-    std::optional<Node const*> GetNode(NodeAdress adress) const;
+    std::optional<Node* const> GetNode(NodeAdress adress);
+    std::optional<Node const* const> GetNode(NodeAdress adress) const;
 
     void AddChildrenToQueue(NodeAdress parent);
     void ConsiderRule(model::NeARIDs rule, Node& in_node,

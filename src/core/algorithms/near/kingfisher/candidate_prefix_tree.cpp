@@ -90,30 +90,37 @@ bool CandidatePrefixTree::ConsPossible(NodeAdress node_addr, OConsequence cons,
     if (!node_addr.Contains(cons.feature) &&
         GetItemsetFrequency(node_addr.ToFeatures(feature_frequency_order_),
                             transactional_data_.get()) < min_occurences_) {
+                                std::cout << "min_occurences used" << std::endl;
         return false;
     }
     model::NeARIDs corresponding_near{node_addr.GetExceptFeat(cons.feature), cons,
                                       feature_frequency_order_};
     if (node_addr.Contains(cons.feature) &&
         GetRuleFrequency(corresponding_near, transactional_data_.get()) < min_occurences_) {
-        return false;
+            std::cout << "min_occurences used" << std::endl;
+            return false;
     }
     double lower_bound;
 
+    unsigned kind_of_bound = 0;
     if (!node_addr.Contains(cons.feature)) {
         if (GetItemsetOccurences(node_addr.ToFeatures(feature_frequency_order_),
                                  transactional_data_.get()) <=
             GetConsMatches({feature_frequency_order_[cons.feature], cons.positive},
                            transactional_data_.get())) {
             lower_bound = GetLowerBound2(corresponding_near, transactional_data_.get());
+            kind_of_bound = 2;
         } else {
             lower_bound = GetLowerBound1(feature_frequency_order_[cons.feature],
                                          transactional_data_.get());
+                                         kind_of_bound = 1;
         }
     } else {
         lower_bound = GetLowerBound3(corresponding_near, transactional_data_.get());
+        kind_of_bound = 3;
     }
     if (lower_bound > max_p_ || (lower_bound >= best_measure)) {
+        std::cout << "lower_bound " << kind_of_bound << " used" << std::endl;
         return false;
     }
     return true;
@@ -247,15 +254,30 @@ void CandidatePrefixTree::PerformBFS() {
     for (auto& [depth1_node_feat, depth1_node_ptr] : root_.children) {
         NodeAdress depth1_node_addr{depth1_node_feat};
         AddChildrenToQueue(std::move(depth1_node_addr));  // Initialize queue with depth 2 nodes
+        deletion_queue_.emplace(std::move(depth1_node_addr));
     }
+    unsigned current_depth_ = 2;
     while (bfs_queue_.size() != 0) {
+        if (bfs_queue_.front().Size() > current_depth_) {
+            current_depth_ = bfs_queue_.front().Size();
+            unsigned grandparent_depth = current_depth_ - 2;
+            NodeAdress leftmost_grandparent_addr{
+                    {std::vector<OFeatureIndex>(grandparent_depth, 0)}};
+            do {
+                auto maybe_grandparent = GetNode(leftmost_grandparent_addr);
+                if (maybe_grandparent.has_value()) {
+                    maybe_grandparent.value()->Clear();
+                }
+            } while (leftmost_grandparent_addr.Increment(ofeat_count_));
+        }
         if (CheckNode(bfs_queue_.front()) == false) {
             LapisPropagation(bfs_queue_.front());
         }
         AddChildrenToQueue(bfs_queue_.front());
         std::cout << "\n_____checked " + bfs_queue_.front().ToString() + "________\n";
+        deletion_queue_.emplace(std::move(bfs_queue_.front()));
         bfs_queue_.pop();
-        PrintAsciiTree(root_, feature_frequency_order_.size());  // DEBUG
+        PrintAsciiTree(root_, ofeat_count_);  // DEBUG
     }
 }
 

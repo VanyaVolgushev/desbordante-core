@@ -58,7 +58,14 @@ struct Node {
         return p_possible.none() && n_possible.none();
     }
 
-    // TODO: remove b_possible
+    void Clear() {
+        p_possible.clear();
+        n_possible.clear();
+        b_possible.clear();
+        p_best.clear();
+        n_best.clear();
+    }
+
     Node(size_t feat_count, OFeatureIndex adds_feat)
         : p_possible(feat_count),
           n_possible(feat_count),

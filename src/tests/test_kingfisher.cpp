@@ -59,15 +59,15 @@ TEST_F(NeARAlgorithmTest, PaperExampleDataset) {
     std::cout << VectorToString(rules);
     SUCCEED();
 }
-/*
-TEST_F(NeARAlgorithmTest, AccidentsDataset) {
-    auto algorithm = CreateAlgorithmInstance(kAccidents, 1.2e-8, 1000, false);
-    algorithm->Execute();
-    auto const rules = algorithm->GetNeARIDsVector();
-    std::cout << VectorToString(rules);
+
+TEST_F(NeARAlgorithmTest, IncrementationTest) {
+    kingfisher::NodeAdress node_adress{{0, 1, 2, 3, 4}};
+    while(node_adress.Increment(6)) {
+        std::cout << node_adress.ToString() << "\n";
+    }
     SUCCEED();
 }
-*/
+
 
 TEST_F(NeARAlgorithmTest, ChessDataset) {
     auto algorithm = CreateAlgorithmInstance(kTestNeARChess, 1.0, 100, false);

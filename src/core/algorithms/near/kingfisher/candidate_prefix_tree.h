@@ -18,6 +18,7 @@ private:
     size_t ofeat_count_;
     std::vector<OFeatureIndex> feature_frequency_order_;
     std::queue<NodeAdress> bfs_queue_;
+    std::queue<NodeAdress> deletion_queue_;
     std::vector<model::NeARIDs> k_best_;
 
     struct MinCmp {

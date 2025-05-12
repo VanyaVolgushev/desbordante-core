@@ -31,6 +31,7 @@ public:
     OFeatureIndex Front() const;
     OFeatureIndex Back() const;
     bool Contains(OFeatureIndex feature) const;
+    bool Increment(size_t feature_number);
 
     void EmplaceBack(OFeatureIndex i) {
         assert(i > Back());

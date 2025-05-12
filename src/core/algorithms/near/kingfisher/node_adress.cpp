@@ -80,6 +80,27 @@ OFeatureIndex NodeAdress::Back() const {
 bool NodeAdress::Contains(OFeatureIndex feature) const {
     return std::find(feat_i_vec_.begin(), feat_i_vec_.end(), feature) != feat_i_vec_.end();
 }
+// Returns true if lexicographical increment is possible
+bool NodeAdress::Increment(size_t feature_number) {
+        const size_t size = feat_i_vec_.size();
+        if (size == 0 || feature_number < size) return false;
+    
+        // Find rightmost element that can be incremented
+        for (int i = int(size) - 1; i >= 0; --i) {
+            // Maximum value for position i is: feature_number - (k - 1 - i)
+            unsigned int max_val = feature_number - (size - 1 - i);
+            if (feat_i_vec_[i] < max_val) {
+                ++feat_i_vec_[i];
+                // Reset all subsequent positions
+                for (size_t j = i + 1; j < size; ++j) {
+                    feat_i_vec_[j] = feat_i_vec_[j - 1] + 1;
+                }
+                return true;
+            }
+        }
+        // No position could be incremented ⇒ already at the final combination
+        return false;
+}
 
 size_t NodeAdress::Size() const {
     return feat_i_vec_.size();
@@ -108,5 +129,6 @@ std::string NodeAdress::ToString() const {
     oss << "]";
     return oss.str();
 }
+
 
 }  // namespace algos

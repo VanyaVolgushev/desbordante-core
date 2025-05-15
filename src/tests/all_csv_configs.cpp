@@ -132,7 +132,16 @@ CSVConfig const kTestDC = CreateCsvConfig("TestDC.csv", ',', true);
 CSVConfig const kTestDC1 = CreateCsvConfig("TestDC1.csv", ',', true);
 CSVConfig const kTestDC2 = CreateCsvConfig("TestDC2.csv", ',', true);
 CSVConfig const kTestDC3 = CreateCsvConfig("TestDC3.csv", ',', true);
-CSVConfig const kTestNeAR1 = CreateCsvConfig("transactional_data/TestNeAR1.csv", ',', false);
 CSVConfig const kAccidents = CreateCsvConfig("transactional_data/accidents.csv", ' ', false);
+CSVConfig const kTestNeAR1 = CreateCsvConfig("transactional_data/TestNeAR1.csv", ',', false);
 CSVConfig const kTestNeARChess = CreateCsvConfig("transactional_data/TestNeAR_Chess.csv", ' ', false);
+CSVConfig const kTestNeARkosarak = CreateCsvConfig("transactional_data/TestNeAR_kosarak.csv", ' ', false);
+CSVConfig const kTestNeARretail = CreateCsvConfig("transactional_data/TestNeAR_retail.csv", ' ', false);
+CSVConfig const kTestNeARaccidents = CreateCsvConfig("transactional_data/TestNeAR_accidents.csv", ' ', false);
+CSVConfig const kTestNeARMushroom = CreateCsvConfig("transactional_data/TestNeAR_Mushroom.csv", ' ', false);
+CSVConfig const kTestNeART10I4D100K = CreateCsvConfig("transactional_data/TestNeAR_T10I4D100K.csv", ' ', false);
+CSVConfig const kTestNeARpumsb = CreateCsvConfig("transactional_data/TestNeAR_pumsb.csv", ' ', false);
+CSVConfig const kTestNeART40I10D100K = CreateCsvConfig("transactional_data/TestNeAR_T40I10D100K.csv", ' ', false);
+CSVConfig const kTestNeARconnect = CreateCsvConfig("transactional_data/TestNeAR_connect.csv", ' ', false);
+CSVConfig const kTestNeARpumsb_star = CreateCsvConfig("transactional_data/TestNeAR_pumsb_star.csv", ' ', false);
 }  // namespace tests

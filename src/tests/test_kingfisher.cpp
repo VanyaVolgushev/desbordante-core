@@ -50,31 +50,77 @@ protected:
         return algos::CreateAndLoadAlgorithm<algos::Kingfisher>(
                 GetParamMap(std::forward<Args>(args)...));
     }
+
+    void TryKingfisherWithDataset(CSVConfig csv_config, double max_p, unsigned max_rules) {
+        auto start = std::chrono::high_resolution_clock::now();
+        
+        auto algorithm = CreateAlgorithmInstance(csv_config, max_p, max_rules, false);
+        algorithm->Execute();
+        auto const rules = algorithm->GetNeARIDsVector();
+        SUCCEED();
+        
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        
+        // Create unique filename based on test name
+        const testing::TestInfo* const test_info = testing::UnitTest::GetInstance()->current_test_info();
+        std::string output_filename = std::string("results/") + test_info->name() + "_output.txt";
+        std::string time_filename = "results/runtimes.csv";
+        
+        // Save rules to file
+        std::ofstream outfile(output_filename);
+        outfile << "Rules:\n" << VectorToString(rules);
+        outfile << "\n\nRuntime: " << elapsed.count() << " seconds";
+        outfile.close();
+        
+        // Append runtime to CSV file
+        std::ofstream timefile(time_filename, std::ios_base::app);
+        timefile << test_info->name() << "," << std::setprecision(6) << elapsed.count() << "\n";
+        timefile.close();
+        
+        std::cout << "Test " << test_info->name() << " completed in " << elapsed.count() << " seconds\n";
+    }
+
+    std::string GetTimestamp() {
+        std::time_t now = std::time(nullptr);
+        char buf[20];
+        std::strftime(buf, sizeof(buf), "%Y%m%d_%H%M%S", std::localtime(&now));
+        return std::string(buf);
+    }
 };
 
 TEST_F(NeARAlgorithmTest, PaperExampleDataset) {
-    auto algorithm = CreateAlgorithmInstance(kTestNeAR1, 1.2e-8, 1000, false);
-    algorithm->Execute();
-    auto const rules = algorithm->GetNeARIDsVector();
-    std::cout << VectorToString(rules);
-    SUCCEED();
+    TryKingfisherWithDataset(kTestNeAR1, 1.2e-8, 1000);
 }
-
-TEST_F(NeARAlgorithmTest, IncrementationTest) {
-    kingfisher::NodeAdress node_adress{{0, 1, 2, 3, 4}};
-    while(node_adress.Increment(6)) {
-        std::cout << node_adress.ToString() << "\n";
-    }
-    SUCCEED();
+TEST_F(NeARAlgorithmTest, kTestNeARChess) {
+    TryKingfisherWithDataset(kTestNeARChess, 1.0, 100);
 }
-
-
-TEST_F(NeARAlgorithmTest, ChessDataset) {
-    auto algorithm = CreateAlgorithmInstance(kTestNeARChess, 1.0, 100, false);
-    algorithm->Execute();
-    auto const rules = algorithm->GetNeARIDsVector();
-    std::cout << VectorToString(rules);
-    SUCCEED();
+TEST_F(NeARAlgorithmTest, kTestNeARkosarak) {
+    TryKingfisherWithDataset(kTestNeARkosarak, 1.0, 100);
+}
+TEST_F(NeARAlgorithmTest, kTestNeARretail) {
+    TryKingfisherWithDataset(kTestNeARretail, 1.0, 100);
+}
+TEST_F(NeARAlgorithmTest, kTestNeARaccidents) {
+    TryKingfisherWithDataset(kTestNeARaccidents, 1.0, 100);
+}
+TEST_F(NeARAlgorithmTest, kTestNeARMushroom) {
+    TryKingfisherWithDataset(kTestNeARMushroom, 1.0, 100);
+}
+TEST_F(NeARAlgorithmTest, kTestNeART10I4D100K) {
+    TryKingfisherWithDataset(kTestNeART10I4D100K, 1.0, 100);
+}
+TEST_F(NeARAlgorithmTest, kTestNeARpumsb) {
+    TryKingfisherWithDataset(kTestNeARpumsb, 1.0, 100);
+}
+TEST_F(NeARAlgorithmTest, kTestNeART40I10D100K) {
+    TryKingfisherWithDataset(kTestNeART40I10D100K, 1.0, 100);
+}
+TEST_F(NeARAlgorithmTest, kTestNeARconnect) {
+    TryKingfisherWithDataset(kTestNeARconnect, 1.0, 100);
+}
+TEST_F(NeARAlgorithmTest, kTestNeARpumsb_star) {
+    TryKingfisherWithDataset(kTestNeARpumsb_star, 1.0, 100);
 }
 
 }  // namespace tests

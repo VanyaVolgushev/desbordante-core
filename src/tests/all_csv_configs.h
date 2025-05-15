@@ -114,4 +114,13 @@ extern CSVConfig const kTestDC3;
 extern CSVConfig const kTestNeAR1;
 extern CSVConfig const kTestNeARAccidents;
 extern CSVConfig const kTestNeARChess;
+extern CSVConfig const kTestNeARkosarak;
+extern CSVConfig const kTestNeARretail;
+extern CSVConfig const kTestNeARaccidents;
+extern CSVConfig const kTestNeARMushroom;
+extern CSVConfig const kTestNeART10I4D100K;
+extern CSVConfig const kTestNeARpumsb;
+extern CSVConfig const kTestNeART40I10D100K;
+extern CSVConfig const kTestNeARconnect;
+extern CSVConfig const kTestNeARpumsb_star;
 }  // namespace tests

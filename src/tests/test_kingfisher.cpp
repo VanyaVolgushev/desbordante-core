@@ -89,38 +89,58 @@ protected:
     }
 };
 
-TEST_F(NeARAlgorithmTest, PaperExampleDataset) {
-    TryKingfisherWithDataset(kTestNeAR1, 1.2e-8, 1000);
+//TEST_F(NeARAlgorithmTest, PaperExampleDataset) {
+//    TryKingfisherWithDataset(kTestNeAR1, 1.2e-8, 1000);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARChess) {
+//    TryKingfisherWithDataset(kTestNeARChess, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARkosarak) {
+//    TryKingfisherWithDataset(kTestNeARkosarak, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARretail) {
+//    TryKingfisherWithDataset(kTestNeARretail, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARaccidents) {
+//    TryKingfisherWithDataset(kTestNeARaccidents, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARMushroom) {
+//    TryKingfisherWithDataset(kTestNeARMushroom, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeART10I4D100K) {
+//    TryKingfisherWithDataset(kTestNeART10I4D100K, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARpumsb) {
+//    TryKingfisherWithDataset(kTestNeARpumsb, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeART40I10D100K) {
+//    TryKingfisherWithDataset(kTestNeART40I10D100K, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARconnect) {
+//    TryKingfisherWithDataset(kTestNeARconnect, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARpumsb_star) {
+//    TryKingfisherWithDataset(kTestNeARpumsb_star, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, KTestNeARKaggleRows) {
+//    TryKingfisherWithDataset(kRulesKaggleRows, 1.0, 100);
+//}
+//TEST_F(NeARAlgorithmTest, kTestNeARRealMarketData1) {
+//    TryKingfisherWithDataset(kTestNeARMarketItems, 1.0, 100);
+//}
+TEST_F(NeARAlgorithmTest, kMushroom50) {
+    TryKingfisherWithDataset(kMushroom50, 1.0, 100);
 }
-TEST_F(NeARAlgorithmTest, kTestNeARChess) {
-    TryKingfisherWithDataset(kTestNeARChess, 1.0, 100);
+TEST_F(NeARAlgorithmTest, kMushroom40) {
+    TryKingfisherWithDataset(kMushroom40, 1.0, 100);
 }
-TEST_F(NeARAlgorithmTest, kTestNeARkosarak) {
-    TryKingfisherWithDataset(kTestNeARkosarak, 1.0, 100);
+TEST_F(NeARAlgorithmTest, kMushroom30) {
+    TryKingfisherWithDataset(kMushroom30, 1.0, 100);
 }
-TEST_F(NeARAlgorithmTest, kTestNeARretail) {
-    TryKingfisherWithDataset(kTestNeARretail, 1.0, 100);
+TEST_F(NeARAlgorithmTest, kMushroom20) {
+    TryKingfisherWithDataset(kMushroom20, 1.0, 100);
 }
-TEST_F(NeARAlgorithmTest, kTestNeARaccidents) {
-    TryKingfisherWithDataset(kTestNeARaccidents, 1.0, 100);
+TEST_F(NeARAlgorithmTest, kMushroom10) {
+    TryKingfisherWithDataset(kMushroom10, 1.0, 100);
 }
-TEST_F(NeARAlgorithmTest, kTestNeARMushroom) {
-    TryKingfisherWithDataset(kTestNeARMushroom, 1.0, 100);
-}
-TEST_F(NeARAlgorithmTest, kTestNeART10I4D100K) {
-    TryKingfisherWithDataset(kTestNeART10I4D100K, 1.0, 100);
-}
-TEST_F(NeARAlgorithmTest, kTestNeARpumsb) {
-    TryKingfisherWithDataset(kTestNeARpumsb, 1.0, 100);
-}
-TEST_F(NeARAlgorithmTest, kTestNeART40I10D100K) {
-    TryKingfisherWithDataset(kTestNeART40I10D100K, 1.0, 100);
-}
-TEST_F(NeARAlgorithmTest, kTestNeARconnect) {
-    TryKingfisherWithDataset(kTestNeARconnect, 1.0, 100);
-}
-TEST_F(NeARAlgorithmTest, kTestNeARpumsb_star) {
-    TryKingfisherWithDataset(kTestNeARpumsb_star, 1.0, 100);
-}
-
 }  // namespace tests

@@ -123,4 +123,10 @@ extern CSVConfig const kTestNeARpumsb;
 extern CSVConfig const kTestNeART40I10D100K;
 extern CSVConfig const kTestNeARconnect;
 extern CSVConfig const kTestNeARpumsb_star;
+extern CSVConfig const kTestNeARMarketItems;
+extern CSVConfig const kMushroom50;
+extern CSVConfig const kMushroom40;
+extern CSVConfig const kMushroom30;
+extern CSVConfig const kMushroom20;
+extern CSVConfig const kMushroom10;
 }  // namespace tests
